@@ -7,7 +7,7 @@ This module is a team project for the Computer Science course at City University
 - Pheonix Meo (phoenix.moe@city.ac.uk)
 - Umer Malik (umer.malik@city.ac.uk)
 
-### Roles 
+## Roles 
 The roles within a team are: 
 - Team Leader: Filippo Vicini
 - Deputy Team Leader
@@ -18,7 +18,7 @@ The roles within a team are:
 
 Everyone should be always respectful, collaborative and proactive in reaching the goal. We will use Disc methodology for collaboration
 
-### Project Docs
+## Project Docs
 
 The project Binder should contain:
 - Project Plan
@@ -34,7 +34,7 @@ The project Binder should contain:
 The whole project binder will be contained in this repo under the `PB` sub folder. Everyone should focus in maintaining the structure clear and organized.
 Everything should be stored in this repo. 
 
-### Customer
+## Customer
 The customer is `Lancaster's Music Hall` with the participation of other development groups we will particiapte in the creation of the final software. The venue uses paper based methods to manage the following processes:
 - manage tickets
 - booking shows
@@ -45,7 +45,7 @@ The customer will like to automate several of these processes
 
 More can be found on the project binder 
 
-### Being a good engineer
+## Being a good engineer
 Everyone should have the goal to keep the structure in order. For the project to be successfull everyone must collaborate effectively.
 Every commit should be a Pull Request (PR) which will then be merged into the main branch by the Team Leader more at (https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
 
