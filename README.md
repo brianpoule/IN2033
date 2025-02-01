@@ -10,11 +10,11 @@ This module is a team project for the Computer Science course at City University
 ## Roles 
 The roles within a team are: 
 - Team Leader: Filippo Vicini
-- Deputy Team Leader
-- System Analyst
-- System Designer
+- Deputy Team Leader: 
+- System Analyst: Pheonix Meo
+- System Designer: Amaan Ali
 - Developer
-- Tester 
+- Tester: Pedro Menezes Da Silva
 
 Everyone should be always respectful, collaborative and proactive in reaching the goal. We will use Disc methodology for collaboration
 
