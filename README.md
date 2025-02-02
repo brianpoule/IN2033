@@ -1,7 +1,7 @@
 # IN2033 Group 27
 This module is a team project for the Computer Science course at City University of London. This is Group 27 where participants are
 - Filippo Vicini (filippo.vicini@city.ac.uk)
-- Amaan ALi (amaan.ali@city.ac.uk)
+- Amaan Ali (amaan.ali@city.ac.uk)
 - Brian Poule (brian.poule@city.ac.uk)
 - Pedro Menezes Da Silva (Pedro.Menezes-Da-Silva@city.ac.uk)
 - Pheonix Meo (phoenix.moe@city.ac.uk)
@@ -10,7 +10,7 @@ This module is a team project for the Computer Science course at City University
 ## Roles 
 The roles within a team are: 
 - Team Leader: Filippo Vicini
-- Deputy Team Leader: 
+- Deputy Team Leader: Amaan Ali
 - System Analyst: Pheonix Meo
 - System Designer: Amaan Ali
 - Developer
