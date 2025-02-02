@@ -7,6 +7,9 @@ This module is a team project for the Computer Science course at City University
 - Pheonix Meo (phoenix.moe@city.ac.uk)
 - Umer Malik (umer.malik@city.ac.uk)
 
+## Name 
+The name every team member have voted is `nullptr`
+
 ## Roles 
 The roles within a team are: 
 - Team Leader: Filippo Vicini
