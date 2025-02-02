@@ -13,7 +13,7 @@ The roles within a team are:
 - Deputy Team Leader: Amaan Ali
 - System Analyst: Pheonix Meo
 - System Designer: Amaan Ali
-- Developer
+- Developer: Brian Poule / Filippo Vicini
 - Tester: Pedro Menezes Da Silva
 
 Everyone should be always respectful, collaborative and proactive in reaching the goal. We will use Disc methodology for collaboration
