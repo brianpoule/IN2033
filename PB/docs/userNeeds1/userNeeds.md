@@ -1,3 +1,13 @@
+```
+title: Notes on user needs
+author: Filippo Vicini
+date of publication: 06/02/2024
+version number: v1.0
+```
+
+
+
+
 ## What is this document about
 
 Provided the user needs document this document will be a summary and complete specification for the user needs with a focus for the marketing team.
