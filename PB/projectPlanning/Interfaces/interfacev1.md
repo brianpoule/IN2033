@@ -28,29 +28,33 @@ By week 4 we are expected to provide:
 The marketing team needs access different data from the operations team to optimize film scheduling, group bookings, and venue promotions. The following specification outlines the required data and its expected format.
 
 ### Venue calendar data
-- **Why?**: To find empty data slots to display films and other events
+- **Why?**: To find empty data slots to display films and other events and have a common calendar between all teams
+- **Access Level**: Read-only with specific write permissions
+- **Structure**: The calendar in the DB will be a set of rows where each row is an event.
 - **Required Data**:
-    - `event_id`
-    - `event_name`
-    - `venue_id`
-    - `venue_name`
-    - `date`
-    - `start_time`
-    - `end_time`
-    - `status`
+    - `host_id: int`
+    - `event_id: int`
+    - `event_name: string`
+    - `venue_id: int`
+    - `venue_name: string`
+    - `date: date`
+    - `start_time: dateTime`
+    - `end_time: dateTime`
+    - `status: string`
 
 ### Seating data
 - **Why?**:  To allocate seats for group bookings and manage accessibility needs.
+- **Access level**: Read and write
 - **Required Data**:
-    - `venue_id`
-    - `seat_id`
-    - `row_number`
-    - `seat_number`
-    - `status`
-    - `restricted_view`
-    - `date`
-    - `start_time`
-    - `end_time`
+    - `venue_id: int`
+    - `seat_id: int`
+    - `row_number: int`
+    - `seat_number: int`
+    - `status: string`
+    - `restricted_view: bool`
+    - `date: string`
+    - `start_time: string`
+    - `end_time: string`
 
 
 
@@ -59,20 +63,22 @@ The marketing team requires access to various data points from the box office te
 
 ### Bookings data
 - **Why?**: To plan sales for group bookings
+- **Access level**: read and write
 - **Required Data**
-    - `booking_id`
-    - `customer_id`
-    - `event_id`
-    - `price`
-    - `quantity`
-    - `booking_date`
-    - `discount_type`
+    - `booking_id: int`
+    - `customer_id: int`
+    - `event_id: int`
+    - `price: int`
+    - `quantity: int`
+    - `booking_date: string`
+    - `discount_type: string`
 
 ### Customer data
 - **Why?**: Personalized communication for "Friends"
+- **Access level**: read only
 - **Required data**
-    - `customer_id`
-    - `customer_name`
-    - `email`
-    - `phone_number`
-    - `friend_member`
+    - `customer_id: int`
+    - `customer_name: string`
+    - `email: string`
+    - `phone_number: int`
+    - `friend_member: bool`
