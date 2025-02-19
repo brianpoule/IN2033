@@ -16,6 +16,6 @@ The roles within a team are:
     System Analyst: Pheonix Meo
     System Designer: Amaan Ali
     Developer: Brian Poule / Filippo Vicini
-    Tester: Pedro Menezes Da Silva
+    Tester: Pedro Menezes Da Silva / Umer Malik
 
 Everyone should be always respectful, collaborative and proactive in reaching the goal. We will use Disc methodology for collaboration
