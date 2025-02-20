@@ -1,5 +1,9 @@
 package com.lancaster.database.BoxOffice;
 
+import com.lancaster.database.Bookings;
+import com.lancaster.database.Films;
+import com.lancaster.database.Promotions;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;

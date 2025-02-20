@@ -1,4 +1,4 @@
-package com.lancaster.database.BoxOffice;
+package com.lancaster.database;
 
 public abstract class Bookings {
     public static class PriorityBookings{
