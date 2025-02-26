@@ -8,6 +8,7 @@ This module is a team project for the Computer Science course at City University
 - Umer Malik (umer.malik@city.ac.uk)
 - Zakaria Chabane (Zakaria.Chabane@city.ac.uk)
 
+The Kaban board and team tasks can be found in the "Projects" section of the github repo, everyone should reference to complete the given tasks
 ## Name 
 The name every team member have voted is `nullptr`
 
