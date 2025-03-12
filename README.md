@@ -27,7 +27,8 @@ Everyone should be always respectful, collaborative and proactive in reaching th
 Our mission is to collaboratively design and deliver a high-quality, automated software solution that meets the operational needs of Lancaster’s Music Hall. We are committed to fostering an environment of respect, collaboration, and continuous improvement to achieve technical excellence and customer satisfaction.
 
 ## Core Values
-•	Respect: We treat every team member with courtesy, value differing opinions, and uphold professionalism. -Collaboration: We actively share ideas, support each other, and leverage our diverse skill sets for collective success.
+•	Respect: We treat every team member with courtesy, value differing opinions, and uphold professionalism.
+• Collaboration: We actively share ideas, support each other, and leverage our diverse skill sets for collective success.
 •	Proactivity: We take initiative in our roles, address challenges promptly, and seek solutions rather than wait for direction. 
 •	Quality & Excellence: We commit to writing clean, well-documented code, following best practices (such as conventional commits and structured PRs), and rigorously testing our work.
 •	Transparency: Open communication and clear documentation ensure everyone is aligned on progress, challenges, and decisions. 
