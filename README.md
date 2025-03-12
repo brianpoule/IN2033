@@ -27,27 +27,26 @@ Everyone should be always respectful, collaborative and proactive in reaching th
 Our mission is to collaboratively design and deliver a high-quality, automated software solution that meets the operational needs of Lancaster’s Music Hall. We are committed to fostering an environment of respect, collaboration, and continuous improvement to achieve technical excellence and customer satisfaction.
 
 ## Core Values
-•	Respect: We treat every team member with courtesy, value differing opinions, and uphold professionalism.
-• Collaboration: We actively share ideas, support each other, and leverage our diverse skill sets for collective success.
-•	Proactivity: We take initiative in our roles, address challenges promptly, and seek solutions rather than wait for direction. 
-•	Quality & Excellence: We commit to writing clean, well-documented code, following best practices (such as conventional commits and structured PRs), and rigorously testing our work.
-•	Transparency: Open communication and clear documentation ensure everyone is aligned on progress, challenges, and decisions. 
-•	Accountability: Each team member takes responsibility for their tasks, ensuring we meet our deadlines and uphold our project standards.
+-	Respect: We treat every team member with courtesy, value differing opinions, and uphold professionalism.
+-	 Collaboration: We actively share ideas, support each other, and leverage our diverse skill sets for collective success.
+-	 Proactivity: We take initiative in our roles, address challenges promptly, and seek solutions rather than wait for direction.
+-	Quality & Excellence: We commit to writing clean, well-documented code, following best practices (such as conventional commits and structured PRs), and rigorously testing our work.
+-	Transparency: Open communication and clear documentation ensure everyone is aligned on progress, challenges, and decisions.
+-	Accountability: Each team member takes responsibility for their tasks, ensuring we meet our deadlines and uphold our project standards.
 
 
 ## Team Goals
-•	Deliver a Functional and Reliable Product: Develop an automated system that efficiently manages ticketing, bookings, concessions, scheduling, and seating, directly addressing the customer’s needs. 
-•	Maintain Organized Project Documentation: Keep the project binder (stored under the PB subfolder in our repository) updated with the project plan, analysis/design diagrams, code documentation, testing reports, meeting notes, and risk registers. 
-•	Adhere to Best Practices: Ensure every commit is made via a pull request, follows conventional commit guidelines, and is merged into the main branch only after careful review.
+- Deliver a Functional and Reliable Product: Develop an automated system that efficiently manages ticketing, bookings, concessions, scheduling, and seating, directly addressing the customer’s needs.
+- Maintain Organized Project Documentation: Keep the project binder (stored under the PB subfolder in our repository) updated with the project plan, analysis/design diagrams, code documentation, testing reports, meeting notes, and risk registers.
+- Adhere to Best Practices: Ensure every commit is made via a pull request, follows conventional commit guidelines, and is merged into the main branch only after careful review.
 
 
 ## Commitment to Success
 By adhering to this charter, each team member commits to:
-
-•	Upholding the values of respect, collaboration, and proactivity. 
-•	Striving for excellence in every aspect of the project. 
-•	Communicating openly and honestly. 
-•	Supporting one another to overcome challenges and achieve our collective goals.
+- Upholding the values of respect, collaboration, and proactivity.
+- Striving for excellence in every aspect of the project.
+- Communicating openly and honestly.
+- Supporting one another to overcome challenges and achieve our collective goals.
 
 
 ## Project Docs
