@@ -1,20 +1,26 @@
 package com.lancaster.database;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBC {
-    private static final String URL = "jdbc:mysql://localhost:3306/mkApp";
-    private static final String USER = "root";
-    private static final String PASSWORD = "your password";
+    // Load environment variables from .env file
+    private static final Dotenv dotenv = Dotenv.load();
+    private static final String URL = "jdbc:mysql://sst-stuproj.city.ac.uk:3306/in2033t27";
+    private static final String USER = dotenv.get("ADMIN_USER");
+    private static final String PASSWORD = dotenv.get("ADMIN_PASSWORD");
+
     public static Connection getConnection() {
+        if (USER == null || PASSWORD == null) {
+            System.err.println("❌ ERROR: Environment variables ADMIN_USER or ADMIN_PASSWORD are missing in .env file!");
+            return null;
+        }
+
         Connection conn = null;
         try {
-            // Load MySQL JDBC Driver (not required for JDBC 4.0+ but ensures compatibility)
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // Establish connection
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("✅ Connected to the database successfully!");
         } catch (ClassNotFoundException e) {
