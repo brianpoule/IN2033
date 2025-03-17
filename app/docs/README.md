@@ -52,5 +52,14 @@ mkApp/
    ```
 
 ## Configuring the Database
-Look at the Database.md file
+Look at the Database.md file for all the instructions
 
+You also need to setup a `.env` file which contains secret access keys the format of the file will be in this way
+
+```
+ADMIN_USER="in2033t27_d"
+ADMIN_PASSWORD="PTCvAU-33a0"
+
+DATA_USER="in2033t27_d"
+DATA_PASSWORD="ivU0xCQfJWk"
+ ```
