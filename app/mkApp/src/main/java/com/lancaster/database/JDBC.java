@@ -13,11 +13,6 @@ public class JDBC {
     private static final String PASSWORD = dotenv.get("ADMIN_PASSWORD");
 
     public static Connection getConnection() {
-        if (USER == null || PASSWORD == null) {
-            System.err.println("❌ ERROR: Environment variables ADMIN_USER or ADMIN_PASSWORD are missing in .env file!");
-            return null;
-        }
-
         Connection conn = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
