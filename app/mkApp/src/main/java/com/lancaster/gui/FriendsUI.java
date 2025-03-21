@@ -35,9 +35,10 @@ public class FriendsUI extends JPanel {
         buttonPanel.setOpaque(false);
 
         // Add New User button
-        JButton newUserButton = new JButton("New User");
-        newUserButton.setBackground(new Color(0, 166, 90));
-        newUserButton.setForeground(Color.WHITE);
+        JButton newUserButton = new JButton("New Friend");
+        newUserButton.setPreferredSize(new Dimension(10, 10));
+        newUserButton.setBackground(new Color(116, 109, 109));
+        newUserButton.setForeground(Color.BLACK);
         newUserButton.setFocusPainted(false);
         newUserButton.addActionListener(e -> showNewUserDialog());
         headerPanel.add(newUserButton);
@@ -77,10 +78,9 @@ public class FriendsUI extends JPanel {
     }
     private void showNewUserDialog() {
         // Create dialog
-        JDialog dialog = new JDialog((Frame)SwingUtilities.getWindowAncestor(this), "New Friend", true);
+        JDialog dialog = new JDialog((Frame)SwingUtilities.getWindowAncestor(this), "New Friend of lancaster", true);
         dialog.setLayout(new BorderLayout());
 
-        // Create form panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -124,11 +124,10 @@ public class FriendsUI extends JPanel {
                     return;
                 }
 
-                // Insert new user
+
                 insertNewUser(name, email);
 
-                // Close dialog and refresh table
-                dialog.dispose();
+
                 loadFriendsData();
 
                 JOptionPane.showMessageDialog(this,
@@ -148,11 +147,11 @@ public class FriendsUI extends JPanel {
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
-        // Add components to dialog
+
         dialog.add(formPanel, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Show dialog
+
         dialog.pack();
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);

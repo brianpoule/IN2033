@@ -7,23 +7,23 @@ import java.awt.event.ActionListener;
 import com.lancaster.database.JDBC;
 import java.sql.Connection;
 
-import static com.lancaster.gui.FriendsUI.friendsNum;
-
 
 public class HomeUI extends JFrame {
 
     private JPanel mainPanel;
     private JLabel statusLabel;
-
+    private JLabel userLabel;
     private JPanel contentPanel;
     private JPanel dashboardPanel;
     private FriendsUI friendsUI;
     private JPanel navPanel;
+    private String username;
 
     /**
      * Constructor for the HomeUI
      */
-    public HomeUI() {
+    public HomeUI(String username) {
+        this.username = username;
         setTitle("Lancaster Marketing Home");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,30 +36,42 @@ public class HomeUI extends JFrame {
         headerPanel.setBackground(new Color(60, 141, 188));
         headerPanel.setPreferredSize(new Dimension(800, 70));
 
-        // Add page title
+
         JLabel titleLabel = new JLabel("Lancaster Marketing Home");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setForeground(Color.WHITE);
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
-        // Add connection status to header
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        statusPanel.setOpaque(false);
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+
+        JLabel userLabel = new JLabel("username:"+username);
+        userLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        userLabel.setForeground(Color.WHITE);
+
         statusLabel = new JLabel("Status: Connecting...");
         statusLabel.setForeground(Color.WHITE);
-        statusPanel.add(statusLabel);
-        headerPanel.add(statusPanel, BorderLayout.EAST);
 
-        // Create content panel with card layout for different sections
+
+        rightPanel.add(userLabel);
+        rightPanel.add(Box.createHorizontalStrut(10));
+        rightPanel.add(statusLabel);
+
+
+        headerPanel.add(rightPanel, BorderLayout.EAST);
+
+
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+
         friendsUI = new FriendsUI();
-        // Create dashboard panel
+
         dashboardPanel = createDashboardPanel();
         contentPanel.add(dashboardPanel, BorderLayout.CENTER);
 
-        // Create navigation panel (sidebar)
+
         navPanel = createNavigationPanel();
 
 
@@ -248,21 +260,19 @@ public class HomeUI extends JFrame {
         contentPanel.repaint();
     }
 
-    /**
-     * Main method to launch the application
-     */
     public static void main(String[] args) {
-
-
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                HomeUI homeUI = new HomeUI();
-                homeUI.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            String loggedInUser = "Guest";
+            if (args.length > 0) {
+                loggedInUser = args[0];
             }
+            HomeUI homeUI = new HomeUI(loggedInUser);
+            homeUI.setVisible(true);
         });
     }
+
+
+
 }
 
 
