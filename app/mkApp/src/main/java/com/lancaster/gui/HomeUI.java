@@ -68,7 +68,7 @@ public class HomeUI extends JFrame {
 
 
         friendsUI = new FriendsUI();
-
+        settingsUI = new SettingsUI();
         dashboardPanel = createDashboardPanel();
         contentPanel.add(dashboardPanel, BorderLayout.CENTER);
 
@@ -250,12 +250,14 @@ public class HomeUI extends JFrame {
                 if (friendsUI == null) {
                     friendsUI = new FriendsUI();
                 }
+                contentPanel.removeAll();
+                contentPanel.add(friendsUI, BorderLayout.CENTER);
+                break;
             case "Settings":
                 if(settingsUI == null){
                     settingsUI = new SettingsUI();
                 }
                 contentPanel.removeAll();
-                contentPanel.add(friendsUI, BorderLayout.CENTER);
                 contentPanel.add(settingsUI, BorderLayout.CENTER);
                 break;
 
