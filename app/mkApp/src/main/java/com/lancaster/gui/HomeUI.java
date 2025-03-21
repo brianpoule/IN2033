@@ -16,6 +16,7 @@ public class HomeUI extends JFrame {
     private JPanel contentPanel;
     private JPanel dashboardPanel;
     private FriendsUI friendsUI;
+    private SettingsUI settingsUI;
     private JPanel navPanel;
     private String username;
 
@@ -249,8 +250,13 @@ public class HomeUI extends JFrame {
                 if (friendsUI == null) {
                     friendsUI = new FriendsUI();
                 }
+            case "Settings":
+                if(settingsUI == null){
+                    settingsUI = new SettingsUI();
+                }
                 contentPanel.removeAll();
                 contentPanel.add(friendsUI, BorderLayout.CENTER);
+                contentPanel.add(settingsUI, BorderLayout.CENTER);
                 break;
 
         }
