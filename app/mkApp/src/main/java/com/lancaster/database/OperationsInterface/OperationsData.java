@@ -106,28 +106,140 @@ public class OperationsData implements OperationsInterface {
         return filmShows;
     }
 
-    @Override
-    public Bookings.PriorityBookings getPrioritySeat(int prioritySeatId) {
-        return null;
+
+    public Bookings.PriorityBookings getPrioritySeat(int prioritySeatId, Connection connection) throws SQLException {
+        Bookings.PriorityBookings priorityBooking = null;
+        String query = "SELECT * FROM priority_bookings WHERE priorityID = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, prioritySeatId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    priorityBooking = new Bookings.PriorityBookings(
+                            resultSet.getInt("priorityID"),
+                            resultSet.getString("room"),
+                            resultSet.getInt("row"),
+                            resultSet.getInt("seat"),
+                            resultSet.getInt("eventID"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("friendID")
+                    );
+                }
+            }
+        }
+
+        return priorityBooking;
     }
 
-    @Override
-    public List<Bookings.PriorityBookings> getPrioritySeats(String startDate, String endDate) {
-        return List.of();
+
+    public List<Bookings.PriorityBookings> getPrioritySeats(String startDate, String endDate, Connection connection) throws SQLException {
+        List<Bookings.PriorityBookings> priorityBookingsList = new ArrayList<>();
+        String query = "SELECT * FROM priority_bookings WHERE date BETWEEN ? AND ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, startDate);
+            statement.setString(2, endDate);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Bookings.PriorityBookings priorityBooking = new Bookings.PriorityBookings(
+                            resultSet.getInt("priorityID"),
+                            resultSet.getString("room"),
+                            resultSet.getInt("row"),
+                            resultSet.getInt("seat"),
+                            resultSet.getInt("eventID"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("friendID")
+                    );
+                    priorityBookingsList.add(priorityBooking);
+                }
+            }
+        }
+
+        return priorityBookingsList;
     }
 
-    @Override
-    public Events getMarketingEvent(int marketingEventId) {
-        return null;
+    public Events getMarketingEvent(int marketingEventId, Connection connection) {
+        Events event = null;
+        String query = "SELECT * FROM events WHERE eventId = ? AND type = 'marketing_events'";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, marketingEventId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    event = new Events(
+                            resultSet.getInt("eventId"),
+                            resultSet.getString("type"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("room"),
+                            resultSet.getInt("duration")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return event;
     }
 
-    @Override
-    public List<Events> getMarketingEventsByDate(String eventDate) {
-        return List.of();
+
+
+    public List<Events> getMarketingEventsByDate(String eventDate, Connection connection) throws SQLException {
+        List<Events> eventsList = new ArrayList<>();
+        String query = "SELECT * FROM events WHERE date = ? AND type = 'marketing_events'";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, eventDate);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Events event = new Events(
+                            resultSet.getInt("eventId"),
+                            resultSet.getString("type"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("room"),
+                            resultSet.getInt("duration")
+                    );
+                    eventsList.add(event);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return eventsList;
     }
 
-    @Override
-    public List<Events> getRoomSchedule(String roomId, String date) {
-        return List.of();
+    public List<Events> getRoomSchedule(String roomId, String date, Connection connection) throws SQLException {
+        List<Events> eventsList = new ArrayList<>();
+        String query = "SELECT * FROM events WHERE room = ? AND date = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, roomId);
+            statement.setString(2, date);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Events event = new Events(
+                            resultSet.getInt("eventId"),
+                            resultSet.getString("type"),
+                            resultSet.getDate("date"),
+                            resultSet.getInt("room"),
+                            resultSet.getInt("duration")
+                    );
+                    eventsList.add(event);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return eventsList;
     }
 }

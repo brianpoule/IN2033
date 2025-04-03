@@ -47,7 +47,7 @@ public interface OperationsInterface {
      * @param prioritySeatId Unique identifier for the priority seat reservation
      * @return PrioritySeat object containing reservation details
      */
-    Bookings.PriorityBookings getPrioritySeat(int prioritySeatId);
+    Bookings.PriorityBookings getPrioritySeat(int prioritySeatId, Connection connection) throws SQLException;
 
     /**
      * Retrieves all priority seat reservations for Friends of Lancaster's within a date range
@@ -55,21 +55,21 @@ public interface OperationsInterface {
      * @param endDate End date in format "YYYYMMDD"
      * @return List of PrioritySeat objects
      */
-    List<Bookings.PriorityBookings> getPrioritySeats(String startDate, String endDate);
+    List<Bookings.PriorityBookings> getPrioritySeats(String startDate, String endDate, Connection connection) throws SQLException;
 
     /**
      * Retrieves marketing event information by ID
      * @param marketingEventId Unique identifier for the marketing event
      * @return MarketingEvent object containing event details
      */
-    Events getMarketingEvent(int marketingEventId);
+    Events getMarketingEvent(int marketingEventId, Connection connection) throws SQLException;
 
     /**
      * Retrieves all marketing events scheduled for a specific date
      * @param eventDate Date in format "YYYYMMDD"
      * @return List of MarketingEvent objects
      */
-    List<Events> getMarketingEventsByDate(String eventDate);
+    List<Events> getMarketingEventsByDate(String eventDate, Connection connection) throws SQLException;
 
     /**
      * Retrieves all events (including film shows and marketing events) scheduled for a specific room
@@ -77,5 +77,5 @@ public interface OperationsInterface {
      * @param date Date in format "YYYYMMDD"
      * @return List of Event objects
      */
-    List<Events> getRoomSchedule(String roomId, String date);
+    List<Events> getRoomSchedule(String roomId, String date, Connection connection) throws SQLException;
 }

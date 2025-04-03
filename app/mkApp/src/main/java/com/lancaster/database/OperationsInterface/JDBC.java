@@ -1,6 +1,7 @@
 package com.lancaster.database.OperationsInterface;
 
 import com.lancaster.database.Bookings;
+import com.lancaster.database.Events;
 import com.lancaster.database.Films;
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -78,4 +79,93 @@ public class JDBC {
         return operationsData.getFilmShowsByDate(showdate,connection);
     }
 
+    public Map<String, Object> getMarketingEvent(int marketingEventId, Connection connection) {
+        Events event = operationsData.getMarketingEvent(marketingEventId, connection);
+        if (event == null) {
+            return null;
+        }
+
+        Map<String, Object> eventMap = new HashMap<>();
+        eventMap.put("eventId", event.getEventId());
+        eventMap.put("type", event.getType());
+        eventMap.put("date", event.getDate());
+        eventMap.put("room", event.getRoom());
+        eventMap.put("duration", event.getDuration());
+
+        return eventMap;
+    }
+
+    public List<Map<String, Object>> getMarketingEventsByDate(String eventDate, Connection connection) throws SQLException {
+
+        List<Events> eventsList = operationsData.getMarketingEventsByDate(eventDate, connection);
+        List<Map<String, Object>> eventsMapList = new ArrayList<>();
+
+        for (Events event : eventsList) {
+            Map<String, Object> eventMap = new HashMap<>();
+            eventMap.put("eventId", event.getEventId());
+            eventMap.put("type", event.getType());
+            eventMap.put("date", event.getDate());
+            eventMap.put("room", event.getRoom());
+            eventMap.put("duration", event.getDuration());
+            eventsMapList.add(eventMap);
+        }
+
+
+        return eventsMapList;
+    }
+
+    public List<Map<String, Object>> getRoomSchedule(String roomId, String date, Connection connection) throws SQLException {
+        List<Events> eventsList = operationsData.getRoomSchedule(roomId, date, connection);
+        List<Map<String, Object>> eventsMapList = new ArrayList<>();
+
+        for (Events event : eventsList) {
+            Map<String, Object> eventMap = new HashMap<>();
+            eventMap.put("eventId", event.getEventId());
+            eventMap.put("type", event.getType());
+            eventMap.put("date", event.getDate());
+            eventMap.put("room", event.getRoom());
+            eventMap.put("duration", event.getDuration());
+            eventsMapList.add(eventMap);
+        }
+
+        return eventsMapList;
+    }
+
+    public Map<String, Object> getPrioritySeat(int prioritySeatId, Connection connection) throws SQLException {
+        Bookings.PriorityBookings priorityBooking = operationsData.getPrioritySeat(prioritySeatId, connection);
+        if (priorityBooking == null) {
+            return null;
+        }
+
+        Map<String, Object> priorityBookingMap = new HashMap<>();
+        priorityBookingMap.put("priorityID", priorityBooking.getPriorityID());
+        priorityBookingMap.put("room", priorityBooking.getRoom());
+        priorityBookingMap.put("row", priorityBooking.getRow());
+        priorityBookingMap.put("seat", priorityBooking.getSeat());
+        priorityBookingMap.put("eventID", priorityBooking.getEventID());
+        priorityBookingMap.put("date", priorityBooking.getDate());
+        priorityBookingMap.put("friendID", priorityBooking.getFriendID());
+
+        return priorityBookingMap;
+    }
+
+    public List<Map<String, Object>> getPrioritySeats(String startDate, String endDate, Connection connection) throws SQLException {
+        List<Bookings.PriorityBookings> priorityBookingsList = operationsData.getPrioritySeats(startDate, endDate, connection);
+        List<Map<String, Object>> priorityBookingsMapList = new ArrayList<>();
+
+        for (Bookings.PriorityBookings priorityBooking : priorityBookingsList) {
+            Map<String, Object> priorityBookingMap = new HashMap<>();
+            priorityBookingMap.put("priorityID", priorityBooking.getPriorityID());
+            priorityBookingMap.put("room", priorityBooking.getRoom());
+            priorityBookingMap.put("row", priorityBooking.getRow());
+            priorityBookingMap.put("seat", priorityBooking.getSeat());
+            priorityBookingMap.put("eventID", priorityBooking.getEventID());
+            priorityBookingMap.put("date", priorityBooking.getDate());
+            priorityBookingMap.put("friendID", priorityBooking.getFriendID());
+            priorityBookingsMapList.add(priorityBookingMap);
+        }
+
+        return priorityBookingsMapList;
+    }
 }
+
