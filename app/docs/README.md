@@ -45,6 +45,12 @@ mkApp/
    ```sh
    mvn clean packag
    ```
+2. **Make sure to install .jar deps**
+```
+
+mvn install:install-file -Dfile={path}/app/mkApp/StriversOperations.jar -DgroupId=com.operations -DartifactId=StriversOperations -Dversion=1.0.0 -Dpackaging=jar
+```
+for example my path is `/Users/filippovicini/Documents/uni/Year2/semester2/IN2033TP/IN2033`
 
 2. **Run the application**
    ```sh
