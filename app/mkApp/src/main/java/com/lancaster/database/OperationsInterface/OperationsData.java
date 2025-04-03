@@ -4,23 +4,58 @@ import com.lancaster.database.Bookings;
 import com.lancaster.database.Events;
 import com.lancaster.database.Films;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OperationsData implements OperationsInterface {
 
-    @Override
-    public Bookings.GroupBookings getGroupBooking(int groupBookingId) {
+
+    public Bookings.GroupBookings getGroupBooking(int groupBookingId, Connection connection) throws SQLException {
+        String query = "SELECT booking_id people, date, room, event FROM group_bookings WHERE booking_id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, groupBookingId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new Bookings.GroupBookings(
+                            resultSet.getInt("booking_id"),
+                            resultSet.getInt("people"),
+                            resultSet.getDate("date"),
+                            resultSet.getString("room"),
+                            resultSet.getString("event")
+                    );
+                }
+            }
+        }
+
         return null;
     }
 
-    @Override
-    public List<Bookings.GroupBookings> getGroupBookingsByDate(String eventDate) {
-        return List.of();
+
+    public List<Bookings.GroupBookings> getGroupBookingsByDate(String eventDate, Connection connection) throws SQLException {
+        String query = "SELECT booking_id, people, date, room, event FROM group_bookings WHERE date = ?";
+        List<Bookings.GroupBookings> groupBookingsList = new ArrayList<>();
+
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setDate(1, Date.valueOf(eventDate));
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Bookings.GroupBookings groupBooking = new Bookings.GroupBookings(
+                            resultSet.getInt("booking_id"),
+                            resultSet.getInt("people"),
+                            resultSet.getDate("date"),
+                            resultSet.getString("room"),
+                            resultSet.getString("event")
+                    );
+                    groupBookingsList.add(groupBooking);
+                }
+            }
+        }
+
+        return groupBookingsList;
     }
 
     public Films.FilmInformation getFilmShow(int showId, Connection connection) throws SQLException {

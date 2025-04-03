@@ -1,15 +1,13 @@
 package com.lancaster.database.OperationsInterface;
 
+import com.lancaster.database.Bookings;
 import com.lancaster.database.Films;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class JDBC {
@@ -28,6 +26,38 @@ public class JDBC {
         this.operationsData = new OperationsData();
 
     }
+
+    public List<Map<String, Object>> getGroupBookingByDate(String eventDate, Connection connection) throws SQLException {
+        List<Bookings.GroupBookings> bookingsInfo = operationsData.getGroupBookingsByDate(eventDate, connection);
+        List<Map<String, Object>> bookingsInfoList = new ArrayList<>();
+
+        for (Bookings.GroupBookings booking : bookingsInfo) {
+            Map<String, Object> bookingsInfoMap = new HashMap<>();
+            bookingsInfoMap.put("groupBookingId", booking.getBookingID());
+            bookingsInfoMap.put("people", booking.getPeople());
+            bookingsInfoMap.put("date", booking.getDate());
+            bookingsInfoMap.put("event", booking.getEvent());
+            bookingsInfoMap.put("room", booking.getRoom());
+            bookingsInfoList.add(bookingsInfoMap);
+        }
+
+        return bookingsInfoList;
+    }
+
+    public Map<String, Object> getGroupBooking(int groupBookingId) throws SQLException {
+        Bookings.GroupBookings bookingsInfo = operationsData.getGroupBooking(groupBookingId,connection);
+
+        Map<String, Object> bookingsInfoMap = new HashMap<>();
+        bookingsInfoMap.put("groupBookingId", bookingsInfo.getBookingID());
+        bookingsInfoMap.put("people", bookingsInfo.getPeople());
+        bookingsInfoMap.put("date", bookingsInfo.getDate());
+        bookingsInfoMap.put("event", bookingsInfo.getEvent());
+        bookingsInfoMap.put("room", bookingsInfo.getRoom());
+
+        return bookingsInfoMap;
+
+    }
+
 
     public Map<String, Object> getShowById(int id) throws SQLException, ClassNotFoundException {
         Films.FilmInformation filmInformation = operationsData.getFilmShow(id, connection);

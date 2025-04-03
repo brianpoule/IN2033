@@ -45,48 +45,31 @@ public abstract class Films {
             return showId;
         }
 
-        public void setShowId(int showId) {
-            this.showId = showId;
-        }
+
 
         public int getFilmId() {
             return filmId;
         }
 
-        public void setFilmId(int filmId) {
-            this.filmId = filmId;
-        }
 
         public String getFilmTitle() {
             return filmTitle;
-        }
-
-        public void setFilmTitle(String filmTitle) {
-            this.filmTitle = filmTitle;
         }
 
         public Date getShowDate() {
             return showDate;
         }
 
-        public void setShowDate(Date showDate) {
-            this.showDate = showDate;
-        }
+
 
         public int getDuration() {
             return duration;
         }
 
-        public void setDuration(int duration) {
-            this.duration = duration;
-        }
+
 
         public int getTicketPrice() {
             return ticketPrice;
-        }
-
-        public void setTicketPrice(int ticketPrice) {
-            this.ticketPrice = ticketPrice;
         }
     }
 }

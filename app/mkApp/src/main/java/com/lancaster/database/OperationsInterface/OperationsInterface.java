@@ -19,14 +19,14 @@ public interface OperationsInterface {
      * @param groupBookingId Unique identifier for the group booking
      * @return GroupBooking object containing booking details
      */
-    Bookings.GroupBookings getGroupBooking(int groupBookingId);
+    Bookings.GroupBookings getGroupBooking(int groupBookingId, Connection connection) throws SQLException;
 
     /**
      * Retrieves all group bookings for a specific date
      * @param eventDate Date in format "YYYYMMDD"
      * @return List of GroupBooking objects
      */
-    List<Bookings.GroupBookings> getGroupBookingsByDate(String eventDate);
+    List<Bookings.GroupBookings> getGroupBookingsByDate(String eventDate, Connection connection) throws SQLException;
 
     /**
      * Retrieves film show information by ID
