@@ -4,6 +4,8 @@ import com.lancaster.database.Bookings;
 import com.lancaster.database.Events;
 import com.lancaster.database.Films;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -31,14 +33,14 @@ public interface OperationsInterface {
      * @param filmShowId Unique identifier for the film show
      * @return FilmShow object containing show details
      */
-    Films.FilmInformation getFilmShow(int filmShowId);
+   Films.FilmInformation getFilmShow(int filmShowId, Connection connection) throws SQLException;
 
     /**
      * Retrieves all film shows scheduled for a specific date
      * @param showDate Date in format "YYYYMMDD"
      * @return List of FilmShow objects
      */
-    List<Films.FilmInformation> getFilmShowsByDate(String showDate);
+    List<Films.FilmInformation> getFilmShowsByDate(String showDate, Connection connection ) throws SQLException;
 
     /**
      * Retrieves priority seat reservation by ID
