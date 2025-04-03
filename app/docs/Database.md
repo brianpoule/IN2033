@@ -11,3 +11,4 @@ The credentials will also be stored in an `.env` file that which is included in 
 City university vpn setup guide: https://cityuni.service-now.com/sp?id=kb_article&sysparm_article=KB0012085
 
 In case you encounter any issues contact `Filippo Vicini`
+

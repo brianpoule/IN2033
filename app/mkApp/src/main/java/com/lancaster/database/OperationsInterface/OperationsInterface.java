@@ -1,4 +1,4 @@
-package com.lancaster.database.Operations;
+package com.lancaster.database.OperationsInterface;
 
 import com.lancaster.database.Bookings;
 import com.lancaster.database.Events;

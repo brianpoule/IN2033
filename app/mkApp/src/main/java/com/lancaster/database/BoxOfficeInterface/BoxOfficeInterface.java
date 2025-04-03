@@ -1,4 +1,4 @@
-package com.lancaster.database.BoxOffice;
+package com.lancaster.database.BoxOfficeInterface;
 
 import com.lancaster.database.Bookings;
 import com.lancaster.database.Films;

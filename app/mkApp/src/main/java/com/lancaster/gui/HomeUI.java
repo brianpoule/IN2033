@@ -16,6 +16,7 @@ public class HomeUI extends JFrame {
     private JPanel contentPanel;
     private JPanel dashboardPanel;
     private FriendsUI friendsUI;
+    private CalendarUI calendarUI;
     private SettingsUI settingsUI;
     private JPanel navPanel;
     private String username;
@@ -69,6 +70,7 @@ public class HomeUI extends JFrame {
 
         friendsUI = new FriendsUI();
         settingsUI = new SettingsUI();
+        calendarUI = new CalendarUI();
         dashboardPanel = createDashboardPanel();
         contentPanel.add(dashboardPanel, BorderLayout.CENTER);
 
@@ -173,17 +175,16 @@ public class HomeUI extends JFrame {
         JButton friendsButton = createMenuButton("Friends", false);
         JButton moviesButton = createMenuButton("Movies", false);
         JButton bookingsButton = createMenuButton("Bookings", false);
-        JButton usersButton = createMenuButton("Users", false);
+        JButton calendarButton = createMenuButton("Calendar", false);
         JButton promotionsButton = createMenuButton("Promotions", false);
         JButton settingsButton = createMenuButton("Settings", false);
 
         // Add components to panel
-
         panel.add(dashboardButton,BorderLayout.WEST);
+        panel.add(calendarButton);
+        panel.add(friendsButton);
         panel.add(moviesButton);
         panel.add(bookingsButton);
-        panel.add(usersButton);
-        panel.add(friendsButton);
         panel.add(promotionsButton);
         panel.add(settingsButton);
 
@@ -252,6 +253,13 @@ public class HomeUI extends JFrame {
                 }
                 contentPanel.removeAll();
                 contentPanel.add(friendsUI, BorderLayout.CENTER);
+                break;
+            case "Calendar":
+                if(calendarUI == null){
+                    calendarUI = new CalendarUI();
+                }
+                contentPanel.removeAll();
+                contentPanel.add(calendarUI, BorderLayout.CENTER);
                 break;
             case "Settings":
                 if(settingsUI == null){

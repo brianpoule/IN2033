@@ -63,3 +63,6 @@ ADMIN_PASSWORD=""
 DATA_USER=""
 DATA_PASSWORD=""
  ```
+
+## Connecting to other teams
+We are using `.jar` files to connect to other teams databases, they initially provided us a an interface with all the needed methods. By connecting I simply imported the given `.jar` file and set it as a dependency in `mvn` you can check dependencies by doing `mvn dependency:tree`.

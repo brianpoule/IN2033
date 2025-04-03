@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
+  <groupId>com.marketing</groupId>
   <artifactId>mkApp</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
@@ -27,7 +27,17 @@
         <artifactId>mysql-connector-j</artifactId>
         <version>8.0.33</version>
     </dependency>
-<dependency>
+
+    <dependency>
+      <groupId>com.operations</groupId>
+      <artifactId>StriversOperations</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>/Users/filippovicini/Documents/uni/Year2/semester2/IN2033TP/IN2033/app/mkApp/StriversOperations.jar</systemPath>
+    </dependency>
+
+
+    <dependency>
     <groupId>io.github.cdimascio</groupId>
     <artifactId>dotenv-java</artifactId>
     <version>3.0.0</version>
