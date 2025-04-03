@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.marketing</groupId>
   <artifactId>mkApp</artifactId>
@@ -7,13 +7,13 @@
   <version>1.0-SNAPSHOT</version>
   <name>mkApp</name>
   <url>http://maven.apache.org</url>
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -23,29 +23,25 @@
     </dependency>
 
     <dependency>
-        <groupId>com.mysql</groupId>
-        <artifactId>mysql-connector-j</artifactId>
-        <version>8.0.33</version>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>8.0.33</version>
     </dependency>
 
+    <!-- Updated dependency without system scope -->
     <dependency>
       <groupId>com.operations</groupId>
       <artifactId>StriversOperations</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>/Users/filippovicini/Documents/uni/Year2/semester2/IN2033TP/IN2033/app/mkApp/StriversOperations.jar</systemPath>
     </dependency>
 
-
     <dependency>
-    <groupId>io.github.cdimascio</groupId>
-    <artifactId>dotenv-java</artifactId>
-    <version>3.0.0</version>
-</dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <version>3.0.0</version>
+    </dependency>
   </dependencies>
 
-
-  
   <build>
     <plugins>
       <!-- Maven Compiler Plugin -->
@@ -58,7 +54,7 @@
           <target>17</target>
         </configuration>
       </plugin>
-      
+
       <!-- Maven Exec Plugin -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -66,9 +62,10 @@
         <version>3.0.0</version>
         <configuration>
           <mainClass>com.lancaster.App</mainClass>
+          <classpathScope>runtime</classpathScope>
         </configuration>
       </plugin>
-      
+
       <!-- Maven Assembly Plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
