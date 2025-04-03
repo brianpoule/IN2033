@@ -186,8 +186,6 @@ public class OperationsData implements OperationsInterface {
         return event;
     }
 
-
-
     public List<Events> getMarketingEventsByDate(String eventDate, Connection connection) throws SQLException {
         List<Events> eventsList = new ArrayList<>();
         String query = "SELECT * FROM events WHERE date = ? AND type = 'marketing_events'";

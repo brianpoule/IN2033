@@ -167,5 +167,12 @@ public class JDBC {
 
         return priorityBookingsMapList;
     }
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+
+        System.out.println("Hello from marketing");
+            JDBC jdbc = new JDBC();
+            Connection connection = jdbc.connection;
+
+    }
 }
 
