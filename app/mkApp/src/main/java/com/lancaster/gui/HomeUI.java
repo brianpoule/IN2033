@@ -16,6 +16,8 @@ public class HomeUI extends JFrame {
     private JPanel contentPanel;
     private JPanel dashboardPanel;
     private FriendsUI friendsUI;
+    private FilmsUI filmsUI;
+    private FilmShowsUI filmShowsUI;
     private CalendarUI calendarUI;
     private SettingsUI settingsUI;
     private JPanel navPanel;
@@ -69,6 +71,8 @@ public class HomeUI extends JFrame {
 
 
         friendsUI = new FriendsUI();
+        filmsUI = new FilmsUI();
+        filmShowsUI = new FilmShowsUI();
         settingsUI = new SettingsUI();
         calendarUI = new CalendarUI();
         dashboardPanel = createDashboardPanel();
@@ -108,7 +112,7 @@ public class HomeUI extends JFrame {
      * Create the dashboard panel with summary information
      */
     private JPanel createDashboardPanel() {
-        JPanel panel = new JPanel(new GridLayout(2, 2, 15, 15));
+        JPanel panel = new JPanel(new GridLayout(3, 2, 15, 15));
         panel.setBackground(Color.WHITE);
 
         // Create summary cards
@@ -116,11 +120,16 @@ public class HomeUI extends JFrame {
         JPanel bookingsCard = createSummaryCard("Bookings", "45", new Color(0, 166, 90));
         JPanel usersCard = createSummaryCard("Users", "8", new Color(243, 156, 18));
         JPanel promotionsCard = createSummaryCard("Promotions", "3", new Color(221, 75, 57));
+        
+        // New card for today's events
+        int todaysEventCount = new JDBC().getTodaysEventCount(); // Fetch today's event count
+        JPanel todaysEventsCard = createSummaryCard("Today's Events", Integer.toString(todaysEventCount), new Color(30, 139, 195));
 
         panel.add(friendsCard);
         panel.add(bookingsCard);
         panel.add(usersCard);
         panel.add(promotionsCard);
+        panel.add(todaysEventsCard); // Add the new card to the panel
 
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -173,18 +182,37 @@ public class HomeUI extends JFrame {
         // Create menu buttons
         JButton dashboardButton = createMenuButton("Dashboard", true);
         JButton friendsButton = createMenuButton("Friends", false);
-        JButton moviesButton = createMenuButton("Movies", false);
+        JButton filmsButton = createMenuButton("Films", false);
+        JButton filmShowsButton = createMenuButton("Film Shows", false);
+        JButton tourBookingsButton = createMenuButton("Tour Bookings", false);
+        JButton meetingBookingsButton = createMenuButton("Meeting Bookings", false);
+        JButton marketingEventsButton = createMenuButton("Marketing Events", false);
         JButton bookingsButton = createMenuButton("Bookings", false);
         JButton calendarButton = createMenuButton("Calendar", false);
         JButton promotionsButton = createMenuButton("Promotions", false);
         JButton settingsButton = createMenuButton("Settings", false);
 
+        // Add action listeners for navigation
+        filmShowsButton.addActionListener(e -> navigateToFilmShows());
+        filmsButton.addActionListener(e -> navigateToFilms());
+        friendsButton.addActionListener(e -> navigateToFriends());
+        dashboardButton.addActionListener(e -> navigateToDashboard());
+        calendarButton.addActionListener(e -> navigateToCalendar());
+        settingsButton.addActionListener(e -> navigateToSettings());
+        tourBookingsButton.addActionListener(e -> navigateToTourBookings());
+        meetingBookingsButton.addActionListener(e -> navigateToMeetingBookings());
+        marketingEventsButton.addActionListener(e -> navigateToMarketingEvents());
+
         // Add components to panel
-        panel.add(dashboardButton,BorderLayout.WEST);
-        panel.add(calendarButton);
+        panel.add(dashboardButton);
         panel.add(friendsButton);
-        panel.add(moviesButton);
+        panel.add(filmsButton);
+        panel.add(filmShowsButton);
+        panel.add(tourBookingsButton);
+        panel.add(meetingBookingsButton);
+        panel.add(marketingEventsButton);
         panel.add(bookingsButton);
+        panel.add(calendarButton);
         panel.add(promotionsButton);
         panel.add(settingsButton);
 
@@ -254,6 +282,13 @@ public class HomeUI extends JFrame {
                 contentPanel.removeAll();
                 contentPanel.add(friendsUI, BorderLayout.CENTER);
                 break;
+            case "Films":
+                if (filmsUI == null) {
+                    filmsUI = new FilmsUI();
+                }
+                contentPanel.removeAll();
+                contentPanel.add(filmsUI, BorderLayout.CENTER);
+                break;
             case "Calendar":
                 if(calendarUI == null){
                     calendarUI = new CalendarUI();
@@ -272,6 +307,69 @@ public class HomeUI extends JFrame {
         }
 
         // Refresh the content panel
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToFilmShows() {
+        contentPanel.removeAll();
+        contentPanel.add(filmShowsUI, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToFilms() {
+        contentPanel.removeAll();
+        contentPanel.add(filmsUI, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToFriends() {
+        contentPanel.removeAll();
+        contentPanel.add(friendsUI, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToDashboard() {
+        contentPanel.removeAll();
+        contentPanel.add(dashboardPanel, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToCalendar() {
+        contentPanel.removeAll();
+        contentPanel.add(calendarUI, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToSettings() {
+        contentPanel.removeAll();
+        contentPanel.add(settingsUI, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToTourBookings() {
+        contentPanel.removeAll();
+        contentPanel.add(new TourBookingsUI(), BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToMeetingBookings() {
+        contentPanel.removeAll();
+        contentPanel.add(new MeetingBookingsUI(), BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void navigateToMarketingEvents() {
+        contentPanel.removeAll();
+        contentPanel.add(new MarketingEventsUI(), BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
     }

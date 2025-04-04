@@ -49,7 +49,7 @@ public class FriendsUI extends JPanel {
         headerPanel.add(statusLabel, BorderLayout.EAST);
 
 
-        String[] columns = {"ID", "Name", "Email", "Membership Level", "Join Date", "Status"};
+        String[] columns = {"friend_id", "name", "email", "subscription_status", "join_date", "booking_num"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -185,7 +185,7 @@ public class FriendsUI extends JPanel {
                 }
 
 
-                String dataQuery = "SELECT * FROM friends_lancaster";
+                String dataQuery = "SELECT friend_id, name, email, subscription_status, join_date, booking_num FROM friends_lancaster";
                 Statement dataStmt = connection.createStatement();
                 ResultSet dataRs = dataStmt.executeQuery(dataQuery);
 

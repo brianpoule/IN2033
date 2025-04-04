@@ -1,10 +1,13 @@
 package com.lancaster.database.BoxOfficeInterface;
 
+import com.lancaster.database.Films;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class JDBC {
     private final Connection connection;
@@ -21,5 +24,9 @@ public class JDBC {
         this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
         this.boxOfficeData = new BoxOfficeData();
 
+    }
+
+    public List<Films.FilmInformation> getFilmSchedule(LocalDateTime startDate, LocalDateTime endDate) throws SQLException {
+        return boxOfficeData.getFilmSchedule(startDate,endDate,connection);
     }
 }

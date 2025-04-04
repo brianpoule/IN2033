@@ -63,7 +63,6 @@ public class JDBC {
     public Map<String, Object> getShowById(int id) throws SQLException, ClassNotFoundException {
         Films.FilmInformation filmInformation = operationsData.getFilmShow(id, connection);
 
-
         Map<String, Object> filmInformationMap = new HashMap<>();
         filmInformationMap.put("showId", filmInformation.getShowId());
         filmInformationMap.put("filmId", filmInformation.getFilmId());
@@ -167,6 +166,8 @@ public class JDBC {
 
         return priorityBookingsMapList;
     }
+
+
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
         System.out.println("Hello from marketing");

@@ -16,9 +16,8 @@ public class App {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        JDBC jdbc = new JDBC();
-        Map<String,Object> unavailableVenues = jdbc.getShowById(1);
-        System.out.println(unavailableVenues);
+
+      
         new LoginUI();
     }
 }

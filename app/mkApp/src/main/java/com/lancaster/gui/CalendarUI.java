@@ -1,13 +1,12 @@
 package com.lancaster.gui;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.List;
 
 public class CalendarUI extends JPanel {
     private JLabel headerLabel;
@@ -130,7 +129,6 @@ public class CalendarUI extends JPanel {
         // Get first day of the month and total days
         LocalDate firstOfMonth = displayedYearMonth.atDay(1);
         int startIndex = firstOfMonth.getDayOfWeek().getValue() % 7;
-
         int totalDays = displayedYearMonth.lengthOfMonth();
 
         // Add blank labels for days before the first day
@@ -138,11 +136,15 @@ public class CalendarUI extends JPanel {
             panel.add(new JLabel(""));
         }
 
-        // Add day labels
+        // Add day labels and fetch events
         for (int day = 1; day <= totalDays; day++) {
+            LocalDate currentDay = displayedYearMonth.atDay(day);
             JLabel dayLabel = new JLabel(String.valueOf(day), SwingConstants.CENTER);
             dayLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             dayLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+
+
             panel.add(dayLabel);
         }
 

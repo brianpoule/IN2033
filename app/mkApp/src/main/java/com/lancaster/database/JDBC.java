@@ -3,6 +3,8 @@ package com.lancaster.database;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JDBC {
@@ -26,5 +28,21 @@ public class JDBC {
             e.printStackTrace();
         }
         return conn;
+    }
+
+    public int getTodaysEventCount() {
+        int count = 0;
+        String query = "SELECT COUNT(*) FROM marketing_events WHERE DATE(date) = CURDATE()"; // Adjust the table name and date column as needed
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = connection.prepareStatement(query)) {
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 }

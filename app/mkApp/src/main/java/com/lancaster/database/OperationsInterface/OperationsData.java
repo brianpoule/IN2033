@@ -72,6 +72,7 @@ public class OperationsData implements OperationsInterface {
                             resultSet.getString("filmTitle"),
                             resultSet.getDate("showDate"),
                             resultSet.getInt("duration"),
+                            resultSet.getDate("endDate"),
                             resultSet.getInt("ticketPrice")
                     );
                 }
@@ -96,6 +97,7 @@ public class OperationsData implements OperationsInterface {
                             resultSet.getString("filmTitle"),
                             resultSet.getDate("showDate"),
                             resultSet.getInt("duration"),
+                            resultSet.getDate("endDate"),
                             resultSet.getInt("ticketPrice")
                     );
                     filmShows.add(filmInformation);

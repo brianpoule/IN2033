@@ -18,14 +18,16 @@ public abstract class Films {
         private String filmTitle;
         private Date showDate;
         private int duration;
+        private Date endDate;
         private int ticketPrice;
 
-        public FilmInformation(int showId, int filmId, String filmTitle, Date showDate, int duration,int ticketPrice) {
+        public FilmInformation(int showId, int filmId, String filmTitle, Date showDate,  int duration, Date endDate,int ticketPrice) {
             this.showId = showId;
             this.filmId = filmId;
             this.filmTitle = filmTitle;
             this.showDate = showDate;
             this.duration = duration;
+            this.endDate = endDate;
             this.ticketPrice = ticketPrice;
         }
 

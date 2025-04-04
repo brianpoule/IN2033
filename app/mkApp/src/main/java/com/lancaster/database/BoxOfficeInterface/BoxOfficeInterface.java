@@ -4,6 +4,8 @@ import com.lancaster.database.Bookings;
 import com.lancaster.database.Films;
 import com.lancaster.database.Promotions;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +48,7 @@ public interface BoxOfficeInterface {
      * @param groupId the group booking ID
      * @return List of reserved row numbers
      */
-    List<String> getReservedRows(String groupId);
+    List<String> getReservedRows(String groupId, Connection connection) throws SQLException;
 
     /**
      * Retrieves institutional booking details
@@ -62,7 +64,7 @@ public interface BoxOfficeInterface {
      * @param endDate end of date range
      * @return List of film screenings
      */
-    List<Films.FilmScreening> getFilmSchedule(LocalDateTime startDate, LocalDateTime endDate);
+    List<Films.FilmInformation> getFilmSchedule(LocalDateTime startDate, LocalDateTime endDate, Connection connection) throws SQLException;
 
     /**
      * Retrieves real-time sales and audience data for films
