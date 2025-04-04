@@ -1,12 +1,16 @@
 package com.lancaster.gui;
 
+import com.lancaster.database.JDBC;
+
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.List;
+import java.util.Map;
 
 public class CalendarUI extends JPanel {
     private JLabel headerLabel;
@@ -193,14 +197,22 @@ public class CalendarUI extends JPanel {
         dayHeader.setFont(new Font("Arial", Font.BOLD, 16));
         panel.add(dayHeader, BorderLayout.NORTH);
 
-        // Create a simple list of time slots for the day.
-        JPanel timeSlotsPanel = new JPanel(new GridLayout(24, 1));
-        for (int hour = 0; hour < 24; hour++) {
-            JLabel slotLabel = new JLabel(String.format("%02d:00", hour));
-            slotLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-            timeSlotsPanel.add(slotLabel);
+        // Create a list to display today's events
+        JPanel eventsPanel = new JPanel();
+        eventsPanel.setLayout(new BoxLayout(eventsPanel, BoxLayout.Y_AXIS));
+
+        // Fetch today's events directly from the JDBC class
+        List<Map<String, Object>> todaysEvents = new JDBC().getTodaysMarketingEvents();
+        if (todaysEvents.isEmpty()) {
+            eventsPanel.add(new JLabel("No events scheduled for today."));
+        } else {
+            for (Map<String, Object> event : todaysEvents) {
+                JLabel eventLabel = new JLabel("Event ID: " + event.get("eventId") + ", Type: " + event.get("type") + ", Room: " + event.get("room"));
+                eventsPanel.add(eventLabel);
+            }
         }
-        JScrollPane scrollPane = new JScrollPane(timeSlotsPanel);
+
+        JScrollPane scrollPane = new JScrollPane(eventsPanel);
         panel.add(scrollPane, BorderLayout.CENTER);
         return panel;
     }

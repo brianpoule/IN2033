@@ -6,6 +6,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JDBC {
     // Load environment variables from .env file
@@ -32,11 +36,13 @@ public class JDBC {
 
     public int getTodaysEventCount() {
         int count = 0;
-        String query = "SELECT COUNT(*) FROM marketing_events WHERE DATE(date) = CURDATE()"; // Adjust the table name and date column as needed
+        String query = "SELECT COUNT(*) FROM marketing_events WHERE DATE(date) = 20250404"; 
 
+        System.out.println("Executing query: " + query);
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = connection.prepareStatement(query)) {
             ResultSet rs = pstmt.executeQuery();
+            System.out.print(rs);
             if (rs.next()) {
                 count = rs.getInt(1);
             }
@@ -44,5 +50,35 @@ public class JDBC {
             e.printStackTrace();
         }
         return count;
+    }
+
+    public List<Map<String, Object>> getTodaysMarketingEvents() {
+        List<Map<String, Object>> eventsList = new ArrayList<>();
+    
+        String query = "SELECT * FROM marketing_events WHERE DATE(date) = CURDATE()";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = connection.prepareStatement(query)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> eventMap = new HashMap<>();
+                eventMap.put("eventId", rs.getInt("eventId"));
+                eventMap.put("type", rs.getString("type"));
+                eventMap.put("date", rs.getDate("date"));
+                eventMap.put("room", rs.getInt("room"));
+                eventMap.put("duration", rs.getInt("duration"));
+                eventsList.add(eventMap);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Print fetched events
+        System.out.println("Fetched Today's Events:");
+        for (Map<String, Object> event : eventsList) {
+            System.out.println("Event ID: " + event.get("eventId") + ", Type: " + event.get("type") + ", Date: " + event.get("date") + ", Room: " + event.get("room") + ", Duration: " + event.get("duration"));
+        }
+
+        return eventsList;
     }
 }
