@@ -5,15 +5,16 @@ import com.lancaster.database.myJDBC;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.List;
+import java.util.Map;
 
 public class CalendarUI extends JPanel {
     private static final Color PRIMARY_COLOR = new Color(60, 141, 188);
@@ -65,7 +66,7 @@ public class CalendarUI extends JPanel {
         add(viewContainer, BorderLayout.CENTER);
 
         // Load events
-        loadEvents();
+        loadMarketingEvents();
     }
 
     private JPanel createHeaderPanel() {
@@ -506,7 +507,7 @@ public class CalendarUI extends JPanel {
         block.add(typeLabel, BorderLayout.CENTER);
 
         // Add tooltip with details
-        block.setToolTipText("Room: " + event.get("room") + " | Duration: " + event.get("duration") + " min");
+        block.setToolTipText("Room: " + event.get("room") + " | Venue: " + event.get("venue") + " | Duration: " + event.get("duration") + " min");
 
         // Add click listener for event details
         block.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -532,21 +533,29 @@ public class CalendarUI extends JPanel {
 
         JLabel typeLabel = new JLabel("Type: " + event.get("type"));
         JLabel roomLabel = new JLabel("Room: " + event.get("room"));
+        JLabel venueLabel = new JLabel("Venue: " + event.get("venue"));
         JLabel durationLabel = new JLabel("Duration: " + event.get("duration") + " minutes");
-        JLabel dateLabel = new JLabel("Date: " + selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")));
+        JLabel startDateLabel = new JLabel("Start Date: " + event.get("startDate"));
+        JLabel endDateLabel = new JLabel("End Date: " + event.get("endDate"));
 
         typeLabel.setFont(REGULAR_FONT);
         roomLabel.setFont(REGULAR_FONT);
+        venueLabel.setFont(REGULAR_FONT);
         durationLabel.setFont(REGULAR_FONT);
-        dateLabel.setFont(REGULAR_FONT);
+        startDateLabel.setFont(REGULAR_FONT);
+        endDateLabel.setFont(REGULAR_FONT);
 
         detailsPanel.add(typeLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         detailsPanel.add(roomLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        detailsPanel.add(venueLabel);
+        detailsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         detailsPanel.add(durationLabel);
         detailsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        detailsPanel.add(dateLabel);
+        detailsPanel.add(startDateLabel);
+        detailsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        detailsPanel.add(endDateLabel);
 
         detailsDialog.add(detailsPanel, BorderLayout.CENTER);
 
@@ -560,43 +569,31 @@ public class CalendarUI extends JPanel {
         detailsDialog.setVisible(true);
     }
 
-    private void loadEvents() {
+    private void loadMarketingEvents() {
         try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
-                String query = "SELECT * FROM marketing_events WHERE date BETWEEN ? AND ?";
+                String query = "SELECT * FROM marketing_events WHERE startDate BETWEEN ? AND ?";
                 PreparedStatement pstmt = connection.prepareStatement(query);
 
-                // Set date range based on the current view
-                LocalDate startDate;
-                LocalDate endDate;
+                // Set date range for the current month
+                LocalDate startDate = displayedYearMonth.atDay(1);
+                LocalDate endDate = displayedYearMonth.atEndOfMonth();
 
-                switch (currentView) {
-                    case "DAY":
-                        startDate = selectedDate;
-                        endDate = selectedDate;
-                        break;
-                    case "WEEK":
-                        startDate = selectedDate.minusDays(selectedDate.getDayOfWeek().getValue() % 7);
-                        endDate = startDate.plusDays(6);
-                        break;
-                    default: // MONTH
-                        startDate = displayedYearMonth.atDay(1);
-                        endDate = displayedYearMonth.atEndOfMonth();
-                        break;
-                }
-
-                pstmt.setDate(1, Date.valueOf(startDate));
-                pstmt.setDate(2, Date.valueOf(endDate));
+                pstmt.setTimestamp(1, Timestamp.valueOf(startDate.atStartOfDay()));
+                pstmt.setTimestamp(2, Timestamp.valueOf(endDate.atTime(23, 59, 59)));
 
                 ResultSet rs = pstmt.executeQuery();
                 eventsByDate.clear();
 
                 while (rs.next()) {
-                    LocalDate eventDate = rs.getDate("date").toLocalDate();
+                    LocalDate eventDate = rs.getTimestamp("startDate").toLocalDateTime().toLocalDate();
                     Map<String, Object> event = new HashMap<>();
                     event.put("type", rs.getString("type"));
                     event.put("room", rs.getInt("room"));
+                    event.put("venue", rs.getString("venue"));
                     event.put("duration", rs.getInt("duration"));
+                    event.put("startDate", rs.getTimestamp("startDate"));
+                    event.put("endDate", rs.getTimestamp("endDate"));
 
                     eventsByDate.computeIfAbsent(eventDate, k -> new ArrayList<>()).add(event);
                 }
@@ -608,7 +605,7 @@ public class CalendarUI extends JPanel {
 
     private void refreshViews() {
         updateHeaderLabel();
-        loadEvents();
+        loadMarketingEvents();
 
         remove(viewContainer);
         monthViewPanel = createMonthViewPanel();
