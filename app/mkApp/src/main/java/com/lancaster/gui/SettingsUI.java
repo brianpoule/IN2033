@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import com.lancaster.database.JDBC;
+import com.lancaster.database.myJDBC;
 
 public class SettingsUI extends JPanel {
     private JTable usersTable;
@@ -139,7 +139,7 @@ public class SettingsUI extends JPanel {
     private void insertNewUser(String username, String password) throws Exception {
         String query = "INSERT INTO users (username, password, created_at) VALUES (?, ?, CURRENT_DATE())";
 
-        try (Connection connection = JDBC.getConnection();
+        try (Connection connection = myJDBC.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, username);
             pstmt.setString(2, password);
@@ -150,7 +150,7 @@ public class SettingsUI extends JPanel {
 
 
     private void loadUsersData() {
-        try (Connection connection = JDBC.getConnection()) {
+        try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
 
 

@@ -1,6 +1,6 @@
 package com.lancaster.gui;
 
-import com.lancaster.database.JDBC;
+import com.lancaster.database.myJDBC;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class LoginUI extends JFrame {
     private JTextField usernameField;
@@ -17,30 +19,68 @@ public class LoginUI extends JFrame {
 
     public LoginUI() {
         setTitle("Login into Lancaster Marketing");
-        setSize(400, 200);
+        setSize(600, 600); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(3, 2));
+        setLayout(new BorderLayout());
 
+        // Create a panel for the form
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        add(new JLabel("Username:"));
-        usernameField = new JTextField();
-        add(usernameField);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        add(new JLabel("Password:"));
-        passwordField = new JPasswordField();
-        add(passwordField);
+        // Add logo
+        try {
+            Image logo = ImageIO.read(new File("src/resources/logo.png")); 
+            // Scale the logo to a smaller size
+            Image scaledLogo = logo.getScaledInstance(200, 150, Image.SCALE_SMOOTH); 
+            JLabel logoLabel = new JLabel(new ImageIcon(scaledLogo));
+            gbc.gridx = 0; gbc.gridy = 0;
+            formPanel.add(logoLabel, gbc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        // Username label and field
+        gbc.gridx = 0; gbc.gridy = 1; 
+        formPanel.add(new JLabel("Username:"), gbc);
+        usernameField = new JTextField(20);
+        gbc.gridx = 1; gbc.gridy = 1;
+        formPanel.add(usernameField, gbc);
+
+        // Password label and field
+        gbc.gridx = 0; gbc.gridy = 2; 
+        formPanel.add(new JLabel("Password:"), gbc);
+        passwordField = new JPasswordField(20);
+        gbc.gridx = 1; gbc.gridy = 2;
+        formPanel.add(passwordField, gbc);
+
+        // Login button
         loginButton = new JButton("Login");
-        add(loginButton);
-
-
+        loginButton.setBackground(new Color(60, 141, 188));
+        loginButton.setForeground(Color.BLACK);
+        loginButton.setFocusPainted(false);
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 authenticateUser();
             }
         });
+        gbc.gridx = 1; gbc.gridy = 3;
+        formPanel.add(loginButton, gbc);
+
+        // Add form panel to the frame
+        add(formPanel, BorderLayout.CENTER);
+
+        // Optional: Add a footer or logo
+        JLabel footerLabel = new JLabel("Welcome to Lancaster Marketing", SwingConstants.CENTER);
+        footerLabel.setFont(new Font("Arial", Font.ITALIC, 14));
+        add(footerLabel, BorderLayout.SOUTH);
 
         setVisible(true);
     }
@@ -48,7 +88,6 @@ public class LoginUI extends JFrame {
     private void authenticateUser() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
-
 
         if (validateLogin(username, password)) {
             JOptionPane.showMessageDialog(this, "Login Successful!");
@@ -61,7 +100,7 @@ public class LoginUI extends JFrame {
 
     private boolean validateLogin(String username, String password) {
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        try (Connection conn = JDBC.getConnection();
+        try (Connection conn = myJDBC.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, username);
@@ -75,25 +114,6 @@ public class LoginUI extends JFrame {
             return false;
         }
     }
-    private String fetchUsername(String username, String password) {
-        String query = "SELECT username FROM users WHERE username = ? AND password = ?";
-        try (Connection conn = JDBC.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-
-            stmt.setString(1, username);
-            stmt.setString(2, password);
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("username");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(LoginUI::new);

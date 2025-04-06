@@ -2,16 +2,16 @@ package com.lancaster.database;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class JDBC {
+import BoxOfficeInterface.JDBC;
+
+public class myJDBC {
     // Load environment variables from .env file
     private static final Dotenv dotenv = Dotenv.load();
     private static final String URL = "jdbc:mysql://sst-stuproj.city.ac.uk:3306/in2033t27";
@@ -34,6 +34,12 @@ public class JDBC {
         return conn;
     }
 
+    public static List<String> getCalendarAvailability(Date date) throws SQLException, ClassNotFoundException {
+
+        JDBC jdbc = new JDBC();
+
+        return jdbc.getCalendarAvailability(date);
+    }
     public int getTodaysEventCount() {
         int count = 0;
         String query = "SELECT COUNT(*) FROM marketing_events WHERE DATE(date) = 20250404"; 

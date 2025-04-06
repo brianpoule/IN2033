@@ -5,7 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
-import com.lancaster.database.JDBC;
+import com.lancaster.database.myJDBC;
 
 public class MarketingEventsUI extends JPanel {
     private JTable eventsTable;
@@ -66,7 +66,7 @@ public class MarketingEventsUI extends JPanel {
     }
 
     private void loadMarketingEventsData() {
-        try (Connection connection = JDBC.getConnection()) {
+        try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
                 // Clear existing data
                 tableModel.setRowCount(0);
@@ -99,7 +99,7 @@ public class MarketingEventsUI extends JPanel {
     }
 
     private void fetchAndInsertEvents() {
-        try (Connection connection = JDBC.getConnection()) {
+        try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
                 // Fetch from film_bookings
                 String filmQuery = "SELECT 'Film' AS type, filmTitle AS name, showDate AS date, room, duration AS peopleNum FROM film_bookings";
@@ -156,7 +156,7 @@ public class MarketingEventsUI extends JPanel {
                 checkStmt.setInt(5, peopleNum);
 
                 ResultSet checkRs = checkStmt.executeQuery();
-                if (checkRs.next() && checkRs.getInt(1) == 0) { // No duplicates found
+                if (checkRs.next() && checkRs.getInt(1) == 0) {
                     pstmt.setString(1, type);
                     pstmt.setString(2, name);
                     pstmt.setDate(3, date);

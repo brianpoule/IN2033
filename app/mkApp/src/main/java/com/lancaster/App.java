@@ -1,10 +1,10 @@
 package com.lancaster;
-//import BoxOfficeInterface.JDBC;
 
-import com.lancaster.database.OperationsInterface.JDBC;
+//import com.lancaster.database.OperationsInterface.OperationsData.;
 import com.lancaster.gui.LoginUI;
+import BoxOfficeInterface.JDBC;
 
-
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +16,9 @@ public class App {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-
-      
+        JDBC jdbc = new JDBC();
+        Date date = new Date(System.currentTimeMillis());
+        System.out.println(jdbc.getCalendarAvailability(date));
         new LoginUI();
     }
 }

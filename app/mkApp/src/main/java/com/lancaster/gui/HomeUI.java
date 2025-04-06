@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import com.lancaster.database.JDBC;
+import com.lancaster.database.myJDBC;
 import java.sql.Connection;
 
 
@@ -37,7 +37,7 @@ public class HomeUI extends JFrame {
 
         // Create header panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(60, 141, 188));
+        headerPanel.setBackground(new Color(21, 32, 35));
         headerPanel.setPreferredSize(new Dimension(800, 70));
 
 
@@ -95,7 +95,7 @@ public class HomeUI extends JFrame {
     }
 
     private void connectToDatabase() {
-        try (Connection connection = JDBC.getConnection()) {
+        try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
                 statusLabel.setText("Status: Connected");
                 statusLabel.setForeground(Color.WHITE);
@@ -120,9 +120,9 @@ public class HomeUI extends JFrame {
         JPanel bookingsCard = createSummaryCard("Bookings", "45", new Color(0, 166, 90));
         JPanel usersCard = createSummaryCard("Users", "8", new Color(243, 156, 18));
         JPanel promotionsCard = createSummaryCard("Promotions", "3", new Color(221, 75, 57));
-        
+
         // New card for today's events
-        int todaysEventCount = new JDBC().getTodaysEventCount(); // Fetch today's event count
+        int todaysEventCount = new myJDBC().getTodaysEventCount(); // Fetch today's event count
         JPanel todaysEventsCard = createSummaryCard("Today's Events", Integer.toString(todaysEventCount), new Color(30, 139, 195));
 
         panel.add(friendsCard);
@@ -137,6 +137,7 @@ public class HomeUI extends JFrame {
 
         return wrapperPanel;
     }
+
 
     /**
      * Create a summary card with title, value, and color

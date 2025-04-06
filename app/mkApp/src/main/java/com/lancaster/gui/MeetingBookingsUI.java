@@ -7,7 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import com.lancaster.database.JDBC;
+import com.lancaster.database.myJDBC;
 
 public class MeetingBookingsUI extends JPanel {
     private JTable bookingsTable;
@@ -68,7 +68,7 @@ public class MeetingBookingsUI extends JPanel {
     }
 
     private void loadMeetingBookingsData() {
-        try (Connection connection = JDBC.getConnection()) {
+        try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
                 String dataQuery = "SELECT bookingID, meetingName, roomName, date, peopleNum, room FROM meeting_bookings";
                 Statement dataStmt = connection.createStatement();
@@ -184,7 +184,7 @@ public class MeetingBookingsUI extends JPanel {
     private void insertNewBooking(String meetingName, String roomName, String date, int peopleNum, String room) throws Exception {
         String query = "INSERT INTO meeting_bookings (meetingName, roomName, date, peopleNum, room) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection connection = JDBC.getConnection();
+        try (Connection connection = myJDBC.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, meetingName);
             pstmt.setString(2, roomName);
