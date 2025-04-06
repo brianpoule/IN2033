@@ -45,7 +45,7 @@ public class MarketingEventsUI extends JPanel {
         eventsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         eventsTable.setGridColor(new Color(230, 230, 230));
         eventsTable.setShowGrid(true);
-        eventsTable.setRowHeight(25);
+         eventsTable.setRowHeight(25);
 
         // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(eventsTable);

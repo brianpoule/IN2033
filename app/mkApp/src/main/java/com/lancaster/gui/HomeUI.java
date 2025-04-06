@@ -1,6 +1,7 @@
 package com.lancaster.gui;
 
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -224,9 +225,9 @@ public class HomeUI extends JFrame {
         JButton tourBookingsButton = createMenuButton("Tour Bookings", false);
         JButton meetingBookingsButton = createMenuButton("Meeting Bookings", false);
         JButton marketingEventsButton = createMenuButton("Marketing Events", false);
-        JButton bookingsButton = createMenuButton("Bookings", false);
+        JButton invoiceButton = createMenuButton("Invoices",false);
         JButton calendarButton = createMenuButton("Calendar", false);
-        JButton promotionsButton = createMenuButton("Promotions", false);
+
         JButton settingsButton = createMenuButton("Settings", false);
 
         // Add action listeners for navigation
@@ -248,11 +249,15 @@ public class HomeUI extends JFrame {
         panel.add(tourBookingsButton);
         panel.add(meetingBookingsButton);
         panel.add(marketingEventsButton);
-        panel.add(bookingsButton);
+
         panel.add(calendarButton);
-        panel.add(promotionsButton);
+
         panel.add(settingsButton);
 
+        // Add Invoice button
+
+        invoiceButton.addActionListener(e -> navigateToInvoices());
+        panel.add(invoiceButton);
 
         panel.add(Box.createVerticalGlue());
 
@@ -409,6 +414,32 @@ public class HomeUI extends JFrame {
         contentPanel.add(new MarketingEventsUI(), BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
+    }
+
+    private void navigateToInvoices() {
+        contentPanel.removeAll();
+        contentPanel.add(new InvoiceUI());
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(30);
+        table.setIntercellSpacing(new Dimension(10, 5));
+        table.setFillsViewportHeight(true);
+        table.setSelectionBackground(new Color(232, 242, 254));
+        table.setSelectionForeground(Color.BLACK);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Arial", Font.BOLD, 14));
+        header.setBackground(new Color(240, 240, 240));
+        header.setForeground(Color.DARK_GRAY);
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
     }
 
     public static void main(String[] args) {

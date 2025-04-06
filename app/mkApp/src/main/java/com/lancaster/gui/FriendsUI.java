@@ -113,25 +113,7 @@ public class FriendsUI extends JPanel {
 
         // Create table with improved styling
         friendsTable = new JTable(tableModel);
-        friendsTable.setFont(REGULAR_FONT);
-        friendsTable.setRowHeight(30);
-        friendsTable.setIntercellSpacing(new Dimension(10, 5));
-        friendsTable.setFillsViewportHeight(true);
-        friendsTable.setSelectionBackground(new Color(232, 242, 254));
-        friendsTable.setSelectionForeground(Color.BLACK);
-        friendsTable.setShowGrid(false);
-        friendsTable.setGridColor(new Color(230, 230, 230));
-        friendsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        // Style table header
-        JTableHeader header = friendsTable.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 14));
-        header.setBackground(new Color(240, 240, 240));
-        header.setForeground(Color.DARK_GRAY);
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-
-        // Add context menu
-        addTableContextMenu();
+        styleTable(friendsTable);
 
         // Add scroll pane
         JScrollPane scrollPane = new JScrollPane(friendsTable);
@@ -357,5 +339,24 @@ public class FriendsUI extends JPanel {
             statusLabel.setText("Error: " + e.getMessage());
             statusLabel.setForeground(new Color(255, 100, 100));
         }
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Arial", Font.PLAIN, 14));
+        table.setRowHeight(30);
+        table.setIntercellSpacing(new Dimension(10, 5));
+        table.setFillsViewportHeight(true);
+        table.setSelectionBackground(new Color(232, 242, 254));
+        table.setSelectionForeground(Color.BLACK);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Arial", Font.BOLD, 14));
+        header.setBackground(new Color(240, 240, 240));
+        header.setForeground(Color.DARK_GRAY);
+        header.setPreferredSize(new Dimension(header.getWidth(), 35));
     }
 }
