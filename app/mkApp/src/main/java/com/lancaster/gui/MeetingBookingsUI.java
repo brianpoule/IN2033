@@ -33,7 +33,7 @@ public class MeetingBookingsUI extends JPanel {
         headerPanel.add(statusLabel, BorderLayout.EAST);
 
         // Create table model
-        String[] columns = {"Booking ID", "Meeting Name", "Room Name", "Date", "Number of People", "Room"};
+        String[] columns = {"Booking ID", "Meeting Name", "Room Name", "Start Date", "End Date", "Number of People", "Room", "Venue"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -70,7 +70,7 @@ public class MeetingBookingsUI extends JPanel {
     private void loadMeetingBookingsData() {
         try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
-                String dataQuery = "SELECT bookingID, meetingName, roomName, date, peopleNum, room FROM meeting_bookings";
+                String dataQuery = "SELECT bookingID, meetingName, roomName, startDate, endDate, peopleNum, room, venue FROM meeting_bookings";
                 Statement dataStmt = connection.createStatement();
                 ResultSet dataRs = dataStmt.executeQuery(dataQuery);
 
@@ -78,12 +78,14 @@ public class MeetingBookingsUI extends JPanel {
 
                 while (dataRs.next()) {
                     Object[] row = {
-                        dataRs.getInt("bookingID"),
-                        dataRs.getString("meetingName"),
-                        dataRs.getString("roomName"),
-                        dataRs.getDate("date"),
-                        dataRs.getInt("peopleNum"),
-                        dataRs.getString("room")
+                            dataRs.getInt("bookingID"),
+                            dataRs.getString("meetingName"),
+                            dataRs.getString("roomName"),
+                            dataRs.getTimestamp("startDate"),
+                            dataRs.getTimestamp("endDate"),
+                            dataRs.getInt("peopleNum"),
+                            dataRs.getString("room"),
+                            dataRs.getString("venue")
                     };
                     tableModel.addRow(row);
                 }
@@ -124,26 +126,40 @@ public class MeetingBookingsUI extends JPanel {
         gbc.gridx = 1; gbc.gridy = 1;
         formPanel.add(roomNameField, gbc);
 
-        // Date field
+        // Start Date field
         gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Date:"), gbc);
-        JTextField dateField = new JTextField(20);
+        formPanel.add(new JLabel("Start Date (YYYY-MM-DD HH:MM:SS):"), gbc);
+        JTextField startDateField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 2;
-        formPanel.add(dateField, gbc);
+        formPanel.add(startDateField, gbc);
+
+        // End Date field
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("End Date (YYYY-MM-DD HH:MM:SS):"), gbc);
+        JTextField endDateField = new JTextField(20);
+        gbc.gridx = 1; gbc.gridy = 3;
+        formPanel.add(endDateField, gbc);
 
         // Number of People field
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 4;
         formPanel.add(new JLabel("Number of People:"), gbc);
         JTextField peopleNumField = new JTextField(20);
-        gbc.gridx = 1; gbc.gridy = 3;
+        gbc.gridx = 1; gbc.gridy = 4;
         formPanel.add(peopleNumField, gbc);
 
         // Room field
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 5;
         formPanel.add(new JLabel("Room:"), gbc);
         JTextField roomField = new JTextField(20);
-        gbc.gridx = 1; gbc.gridy = 4;
+        gbc.gridx = 1; gbc.gridy = 5;
         formPanel.add(roomField, gbc);
+
+        // Venue field
+        gbc.gridx = 0; gbc.gridy = 6;
+        formPanel.add(new JLabel("Venue:"), gbc);
+        JTextField venueField = new JTextField(20);
+        gbc.gridx = 1; gbc.gridy = 6;
+        formPanel.add(venueField, gbc);
 
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -155,15 +171,31 @@ public class MeetingBookingsUI extends JPanel {
                 // Get values from form
                 String meetingName = meetingNameField.getText();
                 String roomName = roomNameField.getText();
-                String date = dateField.getText(); // Assuming date is in a valid format
+                String startDateStr = startDateField.getText();
+                String endDateStr = endDateField.getText();
                 int peopleNum = Integer.parseInt(peopleNumField.getText());
                 String room = roomField.getText();
+                String venue = venueField.getText();
+
+                // Validate timestamp format
+                if (!startDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}") ||
+                        !endDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+                    JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Convert startDateStr and endDateStr to Timestamp
+                java.sql.Timestamp startTimestamp = java.sql.Timestamp.valueOf(startDateStr);
+                java.sql.Timestamp endTimestamp = java.sql.Timestamp.valueOf(endDateStr);
 
                 // Insert new booking into the database
-                insertNewBooking(meetingName, roomName, date, peopleNum, room);
+                insertNewBooking(meetingName, roomName, startTimestamp, endTimestamp, peopleNum, room, venue);
                 loadMeetingBookingsData(); // Refresh the table data
                 JOptionPane.showMessageDialog(dialog, "New booking added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose(); // Close the dialog after successful insertion
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, "Error adding new booking: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -181,17 +213,19 @@ public class MeetingBookingsUI extends JPanel {
         dialog.setVisible(true);
     }
 
-    private void insertNewBooking(String meetingName, String roomName, String date, int peopleNum, String room) throws Exception {
-        String query = "INSERT INTO meeting_bookings (meetingName, roomName, date, peopleNum, room) VALUES (?, ?, ?, ?, ?)";
+    private void insertNewBooking(String meetingName, String roomName, java.sql.Timestamp startTimestamp, java.sql.Timestamp endTimestamp, int peopleNum, String room, String venue) throws Exception {
+        String query = "INSERT INTO meeting_bookings (meetingName, roomName, startDate, endDate, peopleNum, room, venue) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = myJDBC.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, meetingName);
             pstmt.setString(2, roomName);
-            pstmt.setString(3, date);
-            pstmt.setInt(4, peopleNum);
-            pstmt.setString(5, room);
+            pstmt.setTimestamp(3, startTimestamp);
+            pstmt.setTimestamp(4, endTimestamp);
+            pstmt.setInt(5, peopleNum);
+            pstmt.setString(6, room);
+            pstmt.setString(7, venue);
             pstmt.executeUpdate();
         }
     }
-} 
+}

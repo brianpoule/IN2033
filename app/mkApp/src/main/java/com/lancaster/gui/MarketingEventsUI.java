@@ -31,7 +31,7 @@ public class MarketingEventsUI extends JPanel {
         headerPanel.add(statusLabel, BorderLayout.EAST);
 
         // Create table model
-        String[] columns = {"Event ID", "Type", "Name", "Date", "Room", "People"};
+        String[] columns = {"Event ID", "Type", "Name", "Start Date", "End Date", "Room", "People", "Venue"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -78,12 +78,14 @@ public class MarketingEventsUI extends JPanel {
 
                 while (rs.next()) {
                     Object[] row = {
-                        rs.getInt("eventId"),
-                        rs.getString("type"),
-                        rs.getString("name"),
-                        rs.getDate("date"),
-                        rs.getInt("room"),
-                        rs.getInt("peopleNum")
+                            rs.getInt("eventId"),
+                            rs.getString("type"),
+                            rs.getString("name"),
+                            rs.getTimestamp("startDate"),
+                            rs.getTimestamp("endDate"),
+                            rs.getInt("room"),
+                            rs.getInt("peopleNum"),
+                            rs.getString("venue")
                     };
                     tableModel.addRow(row);
                 }
@@ -102,25 +104,25 @@ public class MarketingEventsUI extends JPanel {
         try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
                 // Fetch from film_bookings
-                String filmQuery = "SELECT 'Film' AS type, filmTitle AS name, showDate AS date, room, duration AS peopleNum FROM film_bookings";
+                String filmQuery = "SELECT 'Film' AS type, filmTitle AS name, showDate AS startDate, endDate, room, duration AS peopleNum, venue FROM film_bookings";
                 Statement filmStmt = connection.createStatement();
                 ResultSet filmRs = filmStmt.executeQuery(filmQuery);
                 insertEvents(filmRs, connection);
 
                 // Fetch from group_bookings
-                String groupQuery = "SELECT 'Group' AS type, event AS name, date, room, people AS peopleNum FROM group_bookings";
+                String groupQuery = "SELECT 'Group' AS type, event AS name, startDate, endDate, room, people AS peopleNum, venue FROM group_bookings";
                 Statement groupStmt = connection.createStatement();
                 ResultSet groupRs = groupStmt.executeQuery(groupQuery);
                 insertEvents(groupRs, connection);
 
                 // Fetch from meeting_bookings
-                String meetingQuery = "SELECT 'Meeting' AS type, meetingName AS name, date, room, peopleNum FROM meeting_bookings";
+                String meetingQuery = "SELECT 'Meeting' AS type, meetingName AS name, startDate, endDate, room, peopleNum, venue FROM meeting_bookings";
                 Statement meetingStmt = connection.createStatement();
                 ResultSet meetingRs = meetingStmt.executeQuery(meetingQuery);
                 insertEvents(meetingRs, connection);
 
                 // Fetch from tour_bookings
-                String tourQuery = "SELECT 'Tour' AS type, organizationName AS name, date, room, people AS peopleNum FROM tour_bookings";
+                String tourQuery = "SELECT 'Tour' AS type, organizationName AS name, startDate, endDate, room, people AS peopleNum, venue FROM tour_bookings";
                 Statement tourStmt = connection.createStatement();
                 ResultSet tourRs = tourStmt.executeQuery(tourQuery);
                 insertEvents(tourRs, connection);
@@ -136,35 +138,41 @@ public class MarketingEventsUI extends JPanel {
     }
 
     private void insertEvents(ResultSet rs, Connection connection) throws Exception {
-        String insertQuery = "INSERT INTO marketing_events (type, name, date, room, peopleNum) VALUES (?, ?, ?, ?, ?)";
-        String checkQuery = "SELECT COUNT(*) FROM marketing_events WHERE type = ? AND name = ? AND date = ? AND room = ? AND peopleNum = ?";
+        String insertQuery = "INSERT INTO marketing_events (type, name, startDate, endDate, room, peopleNum, venue) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String checkQuery = "SELECT COUNT(*) FROM marketing_events WHERE type = ? AND name = ? AND startDate = ? AND endDate = ? AND room = ? AND peopleNum = ? AND venue = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery);
              PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
             while (rs.next()) {
                 String type = rs.getString("type");
                 String name = rs.getString("name");
-                Date date = rs.getDate("date");
+                Timestamp startDate = rs.getTimestamp("startDate");
+                Timestamp endDate = rs.getTimestamp("endDate");
                 int room = rs.getInt("room");
                 int peopleNum = rs.getInt("peopleNum");
+                String venue = rs.getString("venue");
 
                 // Check for duplicates
                 checkStmt.setString(1, type);
                 checkStmt.setString(2, name);
-                checkStmt.setDate(3, date);
-                checkStmt.setInt(4, room);
-                checkStmt.setInt(5, peopleNum);
+                checkStmt.setTimestamp(3, startDate);
+                checkStmt.setTimestamp(4, endDate);
+                checkStmt.setInt(5, room);
+                checkStmt.setInt(6, peopleNum);
+                checkStmt.setString(7, venue);
 
                 ResultSet checkRs = checkStmt.executeQuery();
                 if (checkRs.next() && checkRs.getInt(1) == 0) {
                     pstmt.setString(1, type);
                     pstmt.setString(2, name);
-                    pstmt.setDate(3, date);
-                    pstmt.setInt(4, room);
-                    pstmt.setInt(5, peopleNum);
+                    pstmt.setTimestamp(3, startDate);
+                    pstmt.setTimestamp(4, endDate);
+                    pstmt.setInt(5, room);
+                    pstmt.setInt(6, peopleNum);
+                    pstmt.setString(7, venue);
                     pstmt.executeUpdate();
                 }
             }
         }
     }
-} 
+}
