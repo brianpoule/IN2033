@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import com.lancaster.database.myJDBC;
 import java.sql.Connection;
+import java.sql.Statement;
+import java.sql.ResultSet;
 
 
 public class HomeUI extends JFrame {
@@ -117,19 +119,19 @@ public class HomeUI extends JFrame {
 
         // Create summary cards
         JPanel friendsCard = createSummaryCard("Friends of Lancaster", Integer.toString(FriendsUI.friendsNum), new Color(60, 141, 188));
-        JPanel bookingsCard = createSummaryCard("Bookings", "45", new Color(0, 166, 90));
-        JPanel usersCard = createSummaryCard("Users", "8", new Color(243, 156, 18));
-        JPanel promotionsCard = createSummaryCard("Promotions", "3", new Color(221, 75, 57));
 
-        // New card for today's events
-        int todaysEventCount = new myJDBC().getTodaysEventCount(); // Fetch today's event count
-        JPanel todaysEventsCard = createSummaryCard("Today's Events", Integer.toString(todaysEventCount), new Color(30, 139, 195));
+        JPanel todaysEventsCard = createSummaryCard("Today's Events", Integer.toString(new myJDBC().getTodaysEventCount()), new Color(30, 139, 195));
+        
+        // New cards for tour bookings and film shows
+        JPanel tourBookingsCard = createSummaryCard("Tour Bookings", getTourBookingsCount(), new Color(155, 89, 182));
+        JPanel filmShowsCard = createSummaryCard("Film Shows", getFilmShowsCount(), new Color(52, 152, 219));
 
+        // Add all cards to the panel
         panel.add(friendsCard);
-        panel.add(bookingsCard);
-        panel.add(usersCard);
-        panel.add(promotionsCard);
-        panel.add(todaysEventsCard); // Add the new card to the panel
+
+        panel.add(todaysEventsCard);
+        panel.add(tourBookingsCard);
+        panel.add(filmShowsCard);
 
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -138,6 +140,40 @@ public class HomeUI extends JFrame {
         return wrapperPanel;
     }
 
+    // Add these new methods to get the counts
+    private String getTourBookingsCount() {
+        try (Connection connection = myJDBC.getConnection()) {
+            if (connection != null) {
+                String query = "SELECT COUNT(*) FROM tour_bookings";
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        return Integer.toString(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "0";
+    }
+
+    private String getFilmShowsCount() {
+        try (Connection connection = myJDBC.getConnection()) {
+            if (connection != null) {
+                String query = "SELECT COUNT(*) FROM film_bookings";
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        return Integer.toString(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "0";
+    }
 
     /**
      * Create a summary card with title, value, and color

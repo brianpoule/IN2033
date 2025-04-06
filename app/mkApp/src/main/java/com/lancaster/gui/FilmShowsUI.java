@@ -329,22 +329,35 @@ public class FilmShowsUI extends JPanel {
     private void loadFilmShowsData() {
         try (Connection connection = myJDBC.getConnection()) {
             if (connection != null) {
-                String dataQuery = "SELECT showId, filmId, filmTitle, showDate, endDate, duration, ticketPrice, room FROM film_bookings";
+                String dataQuery = "SELECT showId, filmId, filmTitle, showDate, endDate, duration, ticketPrice, room, venue, description FROM film_bookings";
                 Statement dataStmt = connection.createStatement();
                 ResultSet dataRs = dataStmt.executeQuery(dataQuery);
 
                 tableModel.setRowCount(0); // Clear existing data
 
                 while (dataRs.next()) {
+                    // Handle zero date values and convert them to null
+                    Date showDate = dataRs.getDate("showDate");
+                    if (showDate != null && showDate.toString().equals("0000-00-00")) {
+                        showDate = null;
+                    }
+
+                    Date endDate = dataRs.getDate("endDate");
+                    if (endDate != null && endDate.toString().equals("0000-00-00")) {
+                        endDate = null;
+                    }
+
                     Object[] row = {
                             dataRs.getInt("showId"),
                             dataRs.getInt("filmId"),
                             dataRs.getString("filmTitle"),
-                            dataRs.getDate("showDate"),
-                            dataRs.getDate("endDate"),
+                            showDate,
+                            endDate,
                             dataRs.getInt("duration"),
                             dataRs.getDouble("ticketPrice"),
-                            dataRs.getString("room")
+                            dataRs.getString("room"),
+                            dataRs.getString("venue"),
+                            dataRs.getString("description")
                     };
                     tableModel.addRow(row);
                 }
@@ -358,8 +371,6 @@ public class FilmShowsUI extends JPanel {
             statusLabel.setForeground(new Color(255, 100, 100));
         }
     }
-
-    // Kept your createNewShow method mostly the same but improved layout and validation
     private void createNewShow() {
         // Create dialog for new show input
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "New Film Show", true);
@@ -374,84 +385,80 @@ public class FilmShowsUI extends JPanel {
 
         // Film ID field
         gbc.gridx = 0; gbc.gridy = 0;
-        JLabel filmIdLabel = new JLabel("Film ID:");
-        filmIdLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(filmIdLabel, gbc);
+        formPanel.add(new JLabel("Film ID:"), gbc);
         JTextField filmIdField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 0;
         formPanel.add(filmIdField, gbc);
 
         // Film Title field
         gbc.gridx = 0; gbc.gridy = 1;
-        JLabel filmTitleLabel = new JLabel("Film Title:");
-        filmTitleLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(filmTitleLabel, gbc);
+        formPanel.add(new JLabel("Film Title:"), gbc);
         JTextField filmTitleField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 1;
         formPanel.add(filmTitleField, gbc);
 
-        // Show Date field
+        // Start Date field
         gbc.gridx = 0; gbc.gridy = 2;
-        JLabel showDateLabel = new JLabel("Show Date (YYYY-MM-DD):");
-        showDateLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(showDateLabel, gbc);
-        JTextField showDateField = new JTextField(20);
+        formPanel.add(new JLabel("Start Date (YYYY-MM-DD HH:MM:SS):"), gbc);
+        JTextField startDateField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 2;
-        formPanel.add(showDateField, gbc);
+        formPanel.add(startDateField, gbc);
 
         // End Date field
         gbc.gridx = 0; gbc.gridy = 3;
-        JLabel endDateLabel = new JLabel("End Date (YYYY-MM-DD):");
-        endDateLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(endDateLabel, gbc);
+        formPanel.add(new JLabel("End Date (YYYY-MM-DD HH:MM:SS):"), gbc);
         JTextField endDateField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 3;
         formPanel.add(endDateField, gbc);
 
         // Duration field
         gbc.gridx = 0; gbc.gridy = 4;
-        JLabel durationLabel = new JLabel("Duration (min):");
-        durationLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(durationLabel, gbc);
+        formPanel.add(new JLabel("Duration (min):"), gbc);
         JTextField durationField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 4;
         formPanel.add(durationField, gbc);
 
         // Ticket Price field
         gbc.gridx = 0; gbc.gridy = 5;
-        JLabel ticketPriceLabel = new JLabel("Ticket Price (£):");
-        ticketPriceLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(ticketPriceLabel, gbc);
+        formPanel.add(new JLabel("Ticket Price (£):"), gbc);
         JTextField ticketPriceField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 5;
         formPanel.add(ticketPriceField, gbc);
 
         // Room field
         gbc.gridx = 0; gbc.gridy = 6;
-        JLabel roomLabel = new JLabel("Room:");
-        roomLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        formPanel.add(roomLabel, gbc);
+        formPanel.add(new JLabel("Room:"), gbc);
         JTextField roomField = new JTextField(20);
         gbc.gridx = 1; gbc.gridy = 6;
         formPanel.add(roomField, gbc);
 
+        // Venue field
+        gbc.gridx = 0; gbc.gridy = 7;
+        formPanel.add(new JLabel("Venue:"), gbc);
+        JTextField venueField = new JTextField(20);
+        gbc.gridx = 1; gbc.gridy = 7;
+        formPanel.add(venueField, gbc);
+
+        // Description field
+        gbc.gridx = 0; gbc.gridy = 8;
+        formPanel.add(new JLabel("Description:"), gbc);
+        JTextArea descriptionArea = new JTextArea(3, 20);
+        gbc.gridx = 1; gbc.gridy = 8;
+        formPanel.add(new JScrollPane(descriptionArea), gbc);
+
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
-        saveButton.setBackground(new Color(92, 184, 92));
-        saveButton.setForeground(Color.BLACK);
-
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.setBackground(new Color(217, 83, 79));
-        cancelButton.setForeground(Color.BLACK);
 
         saveButton.addActionListener(e -> {
             try {
                 // Basic validation
                 if (filmIdField.getText().trim().isEmpty() || filmTitleField.getText().trim().isEmpty() ||
-                        showDateField.getText().trim().isEmpty() || endDateField.getText().trim().isEmpty() ||
+                        startDateField.getText().trim().isEmpty() || endDateField.getText().trim().isEmpty() ||
                         durationField.getText().trim().isEmpty() || ticketPriceField.getText().trim().isEmpty() ||
-                        roomField.getText().trim().isEmpty()) {
+                        roomField.getText().trim().isEmpty() || venueField.getText().trim().isEmpty() ||
+                        descriptionArea.getText().trim().isEmpty()) {
 
                     JOptionPane.showMessageDialog(dialog, "All fields are required", "Validation Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -460,19 +467,33 @@ public class FilmShowsUI extends JPanel {
                 // Get values from form
                 int filmId = Integer.parseInt(filmIdField.getText());
                 String filmTitle = filmTitleField.getText();
-                String showDate = showDateField.getText();
-                String endDate = endDateField.getText();
+                String startDateStr = startDateField.getText();
+                String endDateStr = endDateField.getText();
                 int duration = Integer.parseInt(durationField.getText());
                 double ticketPrice = Double.parseDouble(ticketPriceField.getText());
                 String room = roomField.getText();
+                String venue = venueField.getText();
+                String description = descriptionArea.getText();
+
+                // Validate timestamp format
+                if (!startDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}") ||
+                        !endDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
+                    JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Convert startDateStr and endDateStr to Timestamp
+                java.sql.Timestamp startTimestamp = java.sql.Timestamp.valueOf(startDateStr);
+                java.sql.Timestamp endTimestamp = java.sql.Timestamp.valueOf(endDateStr);
 
                 // Insert new show into the database
-                insertNewShow(filmId, filmTitle, showDate, endDate, duration, ticketPrice, room);
+                insertNewShow(filmId, filmTitle, startTimestamp, endTimestamp, duration, ticketPrice, room, venue, description);
                 loadFilmShowsData(); // Refresh the table data
                 JOptionPane.showMessageDialog(dialog, "New show added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose(); // Close the dialog after successful insertion
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Please enter valid numbers for Film ID, Duration and Ticket Price", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, "Error adding new show: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -490,18 +511,20 @@ public class FilmShowsUI extends JPanel {
         dialog.setVisible(true);
     }
 
-    private void insertNewShow(int filmId, String filmTitle, String showDate, String endDate, int duration, double ticketPrice, String room) throws Exception {
-        String query = "INSERT INTO film_bookings (filmId, filmTitle, showDate, endDate, duration, ticketPrice, room) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private void insertNewShow(int filmId, String filmTitle, java.sql.Timestamp startTimestamp, java.sql.Timestamp endTimestamp, int duration, double ticketPrice, String room, String venue, String description) throws Exception {
+        String query = "INSERT INTO film_bookings (filmId, filmTitle, showDate, endDate, duration, ticketPrice, room, venue, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = myJDBC.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, filmId);
             pstmt.setString(2, filmTitle);
-            pstmt.setString(3, showDate);
-            pstmt.setString(4, endDate);
+            pstmt.setTimestamp(3, startTimestamp);
+            pstmt.setTimestamp(4, endTimestamp);
             pstmt.setInt(5, duration);
             pstmt.setDouble(6, ticketPrice);
             pstmt.setString(7, room);
+            pstmt.setString(8, venue);
+            pstmt.setString(9, description);
             pstmt.executeUpdate();
         }
     }
