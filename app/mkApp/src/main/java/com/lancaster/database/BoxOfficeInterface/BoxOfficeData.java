@@ -15,6 +15,9 @@ import java.util.Map;
 
 public class BoxOfficeData implements BoxOfficeInterface {
 
+
+    private Connection connection;
+
     @Override
     public Map<String, Promotions.PromotionDetails> getUpcomingEventPromotions() {
         return Map.of();
@@ -22,7 +25,31 @@ public class BoxOfficeData implements BoxOfficeInterface {
 
     @Override
     public List<Bookings.PriorityBookings> getFriendsReservations(String membershipId) {
-        return List.of();
+        List<Bookings.PriorityBookings> bookings = new ArrayList<>();
+        String query = "SELECT * FROM priority_bookings WHERE friendID = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, membershipId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Bookings.PriorityBookings booking = new Bookings.PriorityBookings(
+                        rs.getInt("priorityID"),
+                        rs.getString("room"),
+                        rs.getInt("row"),
+                        rs.getInt("seat"),
+                        rs.getInt("eventID"),
+                        rs.getDate("date"),
+                        rs.getInt("friendID")
+                );
+                bookings.add(booking);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return bookings;
     }
 
     @Override
@@ -32,8 +59,31 @@ public class BoxOfficeData implements BoxOfficeInterface {
 
     @Override
     public List<Bookings.GroupBookings> getGroupHolds(int minimumGroupSize) {
-        return List.of();
+        List<Bookings.GroupBookings> groupHolds = new ArrayList<>();
+        String query = "SELECT * FROM group_bookings WHERE people >= ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, minimumGroupSize);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Bookings.GroupBookings group = new Bookings.GroupBookings(
+                        rs.getInt("booking_id"),
+                        rs.getInt("people"),
+                        rs.getDate("date"),
+                        rs.getString("room"),
+                        rs.getString("event")
+                );
+                groupHolds.add(group);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return groupHolds;
     }
+
 
     public List<String> getReservedRows(String groupId, Connection connection) throws SQLException {
         List<String> reservedRows = new ArrayList<>();
