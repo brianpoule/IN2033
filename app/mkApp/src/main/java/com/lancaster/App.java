@@ -16,9 +16,6 @@ public class App {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        JDBC jdbc = new JDBC();
-        Date date = new Date(System.currentTimeMillis());
-        System.out.println(jdbc.getCalendarAvailability(date));
         new LoginUI();
     }
 }

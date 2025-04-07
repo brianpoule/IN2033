@@ -92,7 +92,15 @@ public class LoginUI extends JFrame {
         if (validateLogin(username, password)) {
             JOptionPane.showMessageDialog(this, "Login Successful!");
             dispose();
-            SwingUtilities.invokeLater(() -> new HomeUI(username).setVisible(true));
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    new HomeUI(username).setVisible(true);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } else {
             JOptionPane.showMessageDialog(this, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
         }

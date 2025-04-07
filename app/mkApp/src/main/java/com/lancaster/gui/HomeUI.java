@@ -7,6 +7,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +29,6 @@ public class HomeUI extends JFrame {
     private SettingsUI settingsUI;
     private JPanel sidebarPanel;
     private String username;
-    private Map<String, Boolean> categoryStates = new HashMap<>();
-    private Map<String, JPanel> categoryItemPanels = new HashMap<>();
-    private Map<String, JLabel> categoryToggleIcons = new HashMap<>();
     private Map<String, JButton> navButtons = new HashMap<>();
     private Color primaryColor = new Color(47, 54, 64);
     private Color accentColor = new Color(86, 101, 115);
@@ -38,30 +36,29 @@ public class HomeUI extends JFrame {
     private Color selectedColor = new Color(25, 42, 86);
     private Color cardHeaderColor = new Color(52, 152, 219);
 
-    // Sidebar categories
-    private final String[] CATEGORIES = {"Dashboard", "Bookings", "Content", "Administration"};
-    private final Map<String, String[]> CATEGORY_ITEMS = new HashMap<String, String[]>() {{
-        // Remove Dashboard from collapsible menu items
-        put("Dashboard", new String[]{}); // Empty array instead of {"Dashboard"}
-        put("Bookings", new String[]{"Tour Bookings", "Meeting Bookings", "Film Shows"});
-        put("Content", new String[]{"Friends", "Films", "Marketing Events"});
-        put("Administration", new String[]{"Calendar", "Invoices", "Settings"});
-    }};
+    // Navigation items - flat list without categories
+    private final String[] NAV_ITEMS = {
+            "Dashboard",
+            "Tour Bookings",
+            "Meeting Bookings",
+            "Film Shows",
+            "Friends",
+            "Films",
+            "Marketing Events",
+            "Calendar",
+            "Invoices",
+            "Settings"
+    };
 
     /**
      * Constructor for the HomeUI
      */
-    public HomeUI(String username) {
+    public HomeUI(String username) throws SQLException, ClassNotFoundException {
         this.username = username;
         setTitle("Lancaster Marketing");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
-        // Initialize category states (expanded by default)
-        for (String category : CATEGORIES) {
-            categoryStates.put(category, true);
-        }
 
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
@@ -139,10 +136,7 @@ public class HomeUI extends JFrame {
         sidebarPanel.setPreferredSize(new Dimension(220, getHeight()));
         sidebarPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, accentColor));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 10);
-
+        // Add logo panel
         JPanel brandPanel = new JPanel(new BorderLayout());
         brandPanel.setBackground(new Color(31, 36, 42));
         brandPanel.setMaximumSize(new Dimension(220, 80));
@@ -154,128 +148,33 @@ public class HomeUI extends JFrame {
             // Scale the logo to a smaller size
             Image scaledLogo = logo.getScaledInstance(200, 150, Image.SCALE_SMOOTH);
             JLabel logoLabel = new JLabel(new ImageIcon(scaledLogo));
-            gbc.gridx = 0; gbc.gridy = 0;
             brandPanel.add(logoLabel);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         sidebarPanel.add(brandPanel);
-        sidebarPanel.add(Box.createVerticalStrut(10));
+        sidebarPanel.add(Box.createVerticalStrut(30));
 
-        // Add Dashboard button at the top (outside collapsible sections)
-        JButton dashboardButton = createMenuButton("Dashboard");
+        // Create navigation buttons
+        for (String navItem : NAV_ITEMS) {
+            JButton navButton = createMenuButton(navItem);
+            sidebarPanel.add(navButton);
+            navButtons.put(navItem, navButton);
+
+            // Small space between buttons
+            sidebarPanel.add(Box.createVerticalStrut(2));
+        }
+
+        // Set Dashboard as selected by default
+        JButton dashboardButton = navButtons.get("Dashboard");
         dashboardButton.setBackground(selectedColor);
         dashboardButton.setForeground(Color.WHITE);
-        navButtons.put("Dashboard", dashboardButton);
-        sidebarPanel.add(dashboardButton);
-        sidebarPanel.add(Box.createVerticalStrut(10));
-
-        // Create category sections
-        for (String category : CATEGORIES) {
-            // Skip creating a category panel for Dashboard since we've moved it
-            if (!category.equals("Dashboard")) {
-                createCategoryPanel(category, CATEGORY_ITEMS.get(category));
-            }
-        }
 
         // Add bottom padding
         sidebarPanel.add(Box.createVerticalGlue());
 
         mainPanel.add(sidebarPanel, BorderLayout.WEST);
-    }
-
-    private void createCategoryPanel(String category, String[] items) {
-        JPanel categoryPanel = new JPanel();
-        categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
-        categoryPanel.setBackground(primaryColor);
-        categoryPanel.setMaximumSize(new Dimension(220, 1000));
-
-        // Create category header with toggle icon
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(accentColor);
-        headerPanel.setMaximumSize(new Dimension(220, 40));
-        headerPanel.setPreferredSize(new Dimension(220, 40));
-
-        JLabel categoryLabel = new JLabel("  " + category);
-        categoryLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        categoryLabel.setForeground(Color.WHITE);
-
-        JLabel toggleIcon = new JLabel(categoryStates.get(category) ? "▼ " : "► ");
-        toggleIcon.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        toggleIcon.setForeground(Color.WHITE);
-
-        // Store reference to toggle icon
-        categoryToggleIcons.put(category, toggleIcon);
-
-        headerPanel.add(categoryLabel, BorderLayout.WEST);
-        headerPanel.add(toggleIcon, BorderLayout.EAST);
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-
-        // Make the entire header panel clickable to toggle category
-        headerPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        headerPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Simple one-click toggle
-                toggleCategory(category);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                headerPanel.setBackground(new Color(accentColor.getRed() + 10,
-                        accentColor.getGreen() + 10,
-                        accentColor.getBlue() + 10));
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                headerPanel.setBackground(accentColor);
-            }
-        });
-
-        categoryPanel.add(headerPanel);
-
-        // Add menu items panel
-        JPanel itemsPanel = new JPanel();
-        itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
-        itemsPanel.setBackground(primaryColor);
-
-        for (String item : items) {
-            JButton button = createMenuButton(item);
-            itemsPanel.add(button);
-            navButtons.put(item, button);
-        }
-
-        categoryPanel.add(itemsPanel);
-
-        // Store references
-        categoryItemPanels.put(category, itemsPanel);
-
-        // Apply initial state
-        itemsPanel.setVisible(categoryStates.get(category));
-
-        sidebarPanel.add(categoryPanel);
-        sidebarPanel.add(Box.createVerticalStrut(5));
-    }
-
-    private void toggleCategory(String category) {
-        // Get the current state
-        boolean isExpanded = categoryStates.get(category);
-
-        // Toggle the state
-        categoryStates.put(category, !isExpanded);
-
-        // Update the toggle icon
-        JLabel toggleIcon = categoryToggleIcons.get(category);
-        toggleIcon.setText(categoryStates.get(category) ? "▼ " : "► ");
-
-        // Show/hide the items panel
-        categoryItemPanels.get(category).setVisible(categoryStates.get(category));
-
-        // Refresh the sidebar
-        sidebarPanel.revalidate();
-        sidebarPanel.repaint();
     }
 
     private JButton createMenuButton(String text) {
@@ -288,7 +187,7 @@ public class HomeUI extends JFrame {
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        button.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        button.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Add hover effect
@@ -660,7 +559,14 @@ public class HomeUI extends JFrame {
             if (args.length > 0) {
                 loggedInUser = args[0];
             }
-            HomeUI homeUI = new HomeUI(loggedInUser);
+            HomeUI homeUI = null;
+            try {
+                homeUI = new HomeUI(loggedInUser);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
             homeUI.setVisible(true);
         });
     }

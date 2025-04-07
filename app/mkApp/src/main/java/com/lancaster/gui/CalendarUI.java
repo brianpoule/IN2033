@@ -9,15 +9,18 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.List;
+import BoxOfficeInterface.JDBC;
 
 public class CalendarUI extends JPanel {
     // Modern color scheme
@@ -55,7 +58,8 @@ public class CalendarUI extends JPanel {
 
     private Map<LocalDate, List<Map<String, Object>>> eventsByDate;
 
-    public CalendarUI() {
+    public CalendarUI() throws SQLException, ClassNotFoundException {
+
         setLayout(new BorderLayout(0, 10));
         setBackground(BACKGROUND_COLOR);
         setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -88,6 +92,149 @@ public class CalendarUI extends JPanel {
 
         // Load events
         loadMarketingEvents();
+        loadRoomAvailability();
+    }
+
+    private void loadRoomAvailability() {
+        try {
+            // Create JDBC instance
+            JDBC jdbc = new JDBC();
+
+            // Get dates for the currently displayed month/week
+            LocalDate startDate;
+            LocalDate endDate;
+
+            if (currentView.equals("MONTH")) {
+                startDate = displayedYearMonth.atDay(1);
+                endDate = displayedYearMonth.atEndOfMonth();
+            } else if (currentView.equals("WEEK")) {
+                startDate = selectedDate.minusDays(selectedDate.getDayOfWeek().getValue() % 7);
+                endDate = startDate.plusDays(6);
+            } else {
+                // For day view, just use selected date
+                startDate = selectedDate;
+                endDate = selectedDate;
+            }
+
+            // Clear previous room availability data
+            // We'll identify room availability events by type "AVAILABILITY"
+            eventsByDate.forEach((date, events) -> {
+                events.removeIf(event -> "AVAILABILITY".equals(event.get("type")));
+            });
+
+            // Process each date in the range
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                java.sql.Date sqlDate = java.sql.Date.valueOf(date);
+                List<String> roomAvailabilities = jdbc.getCalendarAvailability(sqlDate);
+
+                System.out.println("Loading availability for: " + date);
+                System.out.println("Found " + roomAvailabilities.size() + " availability records");
+
+                // Process each availability record
+                for (String availabilityStr : roomAvailabilities) {
+                    System.out.println("Raw availability data: " + availabilityStr);
+
+                    try {
+                        // Handle format like "SlotTime: 08:00:00"
+                        if (availabilityStr.startsWith("SlotTime:")) {
+                            String timeStr = availabilityStr.substring("SlotTime:".length()).trim();
+
+                            // Create a generic room availability event
+                            LocalDateTime startDateTime = date.atTime(
+                                    Integer.parseInt(timeStr.substring(0, 2)),
+                                    Integer.parseInt(timeStr.substring(3, 5)),
+                                    Integer.parseInt(timeStr.substring(6, 8))
+                            );
+
+                            // Create an end time 1 hour later
+                            LocalDateTime endDateTime = startDateTime.plusHours(1);
+
+                            // Create timestamps
+                            Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
+                            Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
+
+                            // Calculate duration in minutes
+                            long durationMinutes = 60; // 1 hour
+
+                            // Create an event map for available slot
+                            Map<String, Object> event = new HashMap<>();
+                            event.put("type", "AVAILABILITY");
+                            event.put("room", 1); // Generic room ID
+                            event.put("roomName", "Available Slot");
+                            event.put("venue", "Main Venue");
+                            event.put("duration", durationMinutes);
+                            event.put("startDate", startTimestamp);
+                            event.put("endDate", endTimestamp);
+                            event.put("description", "Available time slot: " + timeStr);
+
+                            // Add to the eventsByDate map
+                            eventsByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(event);
+                            System.out.println("Added time slot availability for " + date + " at " + timeStr);
+                        }
+                        // Handle the pipe-delimited format if it exists
+                        else if (availabilityStr.contains("|")) {
+                            // Parse the pipe-delimited string
+                            // Format: "Room ID|Room Name|Venue|Start Time|End Time|Event Name"
+                            String[] parts = availabilityStr.split("\\|");
+
+                            if (parts.length >= 6) {
+                                int roomId = Integer.parseInt(parts[0]);
+                                String roomName = parts[1];
+                                String venue = parts[2];
+                                String startTimeStr = parts[3];
+                                String endTimeStr = parts[4];
+                                String eventType = parts[5];
+
+                                System.out.println("Parsing: Room " + roomId + ", " + roomName + ", " +
+                                        venue + ", " + startTimeStr + "-" + endTimeStr + ", " + eventType);
+
+                                // Convert time strings to Timestamp objects
+                                LocalDateTime startDateTime = date.atTime(
+                                        Integer.parseInt(startTimeStr.split(":")[0]),
+                                        Integer.parseInt(startTimeStr.split(":")[1])
+                                );
+                                LocalDateTime endDateTime = date.atTime(
+                                        Integer.parseInt(endTimeStr.split(":")[0]),
+                                        Integer.parseInt(endTimeStr.split(":")[1])
+                                );
+
+                                Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
+                                Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
+
+                                // Calculate duration in minutes
+                                long durationMinutes = java.time.Duration.between(startDateTime, endDateTime).toMinutes();
+
+                                // Create an event map
+                                Map<String, Object> event = new HashMap<>();
+                                event.put("type", "AVAILABILITY");
+                                event.put("room", roomId);
+                                event.put("roomName", roomName);
+                                event.put("venue", venue);
+                                event.put("duration", durationMinutes);
+                                event.put("startDate", startTimestamp);
+                                event.put("endDate", endTimestamp);
+                                event.put("description", eventType);
+
+                                // Add to the eventsByDate map
+                                eventsByDate.computeIfAbsent(date, k -> new ArrayList<>()).add(event);
+                                System.out.println("Added room availability for " + date + " - Room " + roomId);
+                            } else {
+                                System.err.println("Invalid format for availability record: " + availabilityStr);
+                            }
+                        } else {
+                            System.err.println("Unrecognized format for availability record: " + availabilityStr);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error processing availability record: " + availabilityStr);
+                        System.err.println("Error details: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading room availability: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private JPanel createHeaderPanel() {
@@ -492,9 +639,20 @@ public class CalendarUI extends JPanel {
         indicator.setPreferredSize(new Dimension(10, 18));
         indicator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 18));
 
-        // Rounded rectangle with event type
+        // Get event type and determine display text
         String eventType = event.get("type").toString();
-        JLabel eventLabel = new JLabel("  " + eventType);
+        String displayText;
+
+        if ("AVAILABILITY".equals(eventType)) {
+            // For availability events, display "Available" and room name
+            displayText = "Available: " + event.get("roomName");
+            eventType = "availability"; // For color lookup
+        } else {
+            // For regular events, just display the event type
+            displayText = "  " + eventType;
+        }
+
+        JLabel eventLabel = new JLabel("  " + displayText);
         eventLabel.setFont(SMALL_FONT);
         eventLabel.setForeground(Color.WHITE);
 
@@ -507,8 +665,13 @@ public class CalendarUI extends JPanel {
         // Add subtle rounded corners
         indicator.setBorder(new LineBorder(eventColor, 1, true));
 
-        // Add tooltip
-        indicator.setToolTipText(eventType + " | " + event.get("venue") + " | Room: " + event.get("room"));
+        // Add more detailed tooltip based on event type
+        if ("AVAILABILITY".equals(event.get("type"))) {
+            indicator.setToolTipText("Available Room: " + event.get("roomName") + " | " +
+                    event.get("venue") + " | Room ID: " + event.get("room"));
+        } else {
+            indicator.setToolTipText(eventType + " | " + event.get("venue") + " | Room: " + event.get("room"));
+        }
 
         return indicator;
     }
@@ -526,6 +689,8 @@ public class CalendarUI extends JPanel {
                 return new Color(211, 84, 0); // Orange
             case "seminar":
                 return new Color(22, 160, 133); // Teal
+            case "availability":
+                return new Color(52, 152, 219); // Light blue for availability
             default:
                 return ACCENT_COLOR; // Default green
         }
@@ -724,6 +889,15 @@ public class CalendarUI extends JPanel {
         card.setBackground(Color.WHITE);
 
         String eventType = event.get("type").toString();
+        String displayTitle;
+
+        if ("AVAILABILITY".equals(eventType)) {
+            displayTitle = "Available: " + event.get("roomName");
+            eventType = "availability"; // For color lookup
+        } else {
+            displayTitle = eventType;
+        }
+
         Color eventColor = getEventColor(eventType);
 
         // Left color bar
@@ -738,7 +912,7 @@ public class CalendarUI extends JPanel {
         contentPanel.setOpaque(false);
 
         // Event title
-        JLabel titleLabel = new JLabel(eventType);
+        JLabel titleLabel = new JLabel(displayTitle);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -835,11 +1009,11 @@ public class CalendarUI extends JPanel {
         // Distribute events to hours
         List<Map<String, Object>> dayEvents = eventsByDate.get(selectedDate);
         if (dayEvents != null && !dayEvents.isEmpty()) {
-            // For this example, just distribute events across hours
-            for (int i = 0; i < dayEvents.size(); i++) {
-                int hour = 8 + i; // Start events at 8 AM
-                if (hour < 24) {
-                    eventsByHour.computeIfAbsent(hour, k -> new ArrayList<>()).add(dayEvents.get(i));
+            for (Map<String, Object> event : dayEvents) {
+                if (event.get("startDate") instanceof Timestamp) {
+                    Timestamp startTimestamp = (Timestamp) event.get("startDate");
+                    int hour = startTimestamp.toLocalDateTime().getHour();
+                    eventsByHour.computeIfAbsent(hour, k -> new ArrayList<>()).add(event);
                 }
             }
         }
@@ -906,6 +1080,15 @@ public class CalendarUI extends JPanel {
 
     private JPanel createDayViewEventBlock(Map<String, Object> event) {
         String eventType = event.get("type").toString();
+        String displayTitle;
+
+        if ("AVAILABILITY".equals(eventType)) {
+            displayTitle = "Available: " + event.get("roomName");
+            eventType = "availability"; // For color lookup
+        } else {
+            displayTitle = eventType;
+        }
+
         Color eventColor = getEventColor(eventType);
 
         JPanel block = new JPanel();
@@ -918,7 +1101,7 @@ public class CalendarUI extends JPanel {
         block.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
         // Event title
-        JLabel titleLabel = new JLabel(eventType);
+        JLabel titleLabel = new JLabel(displayTitle);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         titleLabel.setForeground(TEXT_COLOR);
 
@@ -996,10 +1179,20 @@ public class CalendarUI extends JPanel {
         // Header with event type
         String eventType = event.get("type").toString();
         JPanel headerPanel = new JPanel(new BorderLayout());
+
+        // Determine display title and color based on event type
+        String displayTitle;
+        if ("AVAILABILITY".equals(eventType)) {
+            displayTitle = "Available Room: " + event.get("roomName");
+            eventType = "availability"; // For color lookup
+        } else {
+            displayTitle = eventType;
+        }
+
         headerPanel.setBackground(getEventColor(eventType));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        JLabel headerLabel = new JLabel(eventType);
+        JLabel headerLabel = new JLabel(displayTitle);
         headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         headerLabel.setForeground(Color.WHITE);
         headerPanel.add(headerLabel, BorderLayout.CENTER);
@@ -1016,6 +1209,11 @@ public class CalendarUI extends JPanel {
         addDetailRow(detailsPanel, "Duration:", event.get("duration") + " minutes");
         addDetailRow(detailsPanel, "Start Date:", formatTimestamp((Timestamp)event.get("startDate")));
         addDetailRow(detailsPanel, "End Date:", formatTimestamp((Timestamp)event.get("endDate")));
+
+        // Add description if available (for availability events)
+        if (event.containsKey("description")) {
+            addDetailRow(detailsPanel, "Description:", event.get("description").toString());
+        }
 
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -1105,6 +1303,7 @@ public class CalendarUI extends JPanel {
     private void refreshViews() {
         updateHeaderLabel();
         loadMarketingEvents();
+        loadRoomAvailability(); // Add this line to load room availabilities
 
         remove(viewContainer);
         monthViewPanel = createMonthViewPanel();

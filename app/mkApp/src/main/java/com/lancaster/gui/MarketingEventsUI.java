@@ -8,6 +8,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+
 import com.lancaster.database.myJDBC;
 
 public class MarketingEventsUI extends JPanel {
@@ -23,6 +24,7 @@ public class MarketingEventsUI extends JPanel {
     private Color backgroundColor = new Color(245, 246, 250);
 
     public MarketingEventsUI() {
+
         setLayout(new BorderLayout());
         setBackground(backgroundColor);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
