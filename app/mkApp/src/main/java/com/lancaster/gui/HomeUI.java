@@ -27,6 +27,7 @@ public class HomeUI extends JFrame {
     private FilmShowsUI filmShowsUI;
     private CalendarUI calendarUI;
     private SettingsUI settingsUI;
+    private heldSeatsUI heldSeatsUI; // Added HeldSeatsUI reference
     private JPanel sidebarPanel;
     private String username;
     private Map<String, JButton> navButtons = new HashMap<>();
@@ -36,7 +37,7 @@ public class HomeUI extends JFrame {
     private Color selectedColor = new Color(25, 42, 86);
     private Color cardHeaderColor = new Color(52, 152, 219);
 
-    // Navigation items - flat list without categories
+    // Navigation items - flat list without categories (added "Held Seats")
     private final String[] NAV_ITEMS = {
             "Dashboard",
             "Tour Bookings",
@@ -45,6 +46,7 @@ public class HomeUI extends JFrame {
             "Friends",
             "Films",
             "Marketing Events",
+            "Held Seats", // Added the new menu item
             "Calendar",
             "Invoices",
             "Settings"
@@ -76,6 +78,7 @@ public class HomeUI extends JFrame {
         filmShowsUI = new FilmShowsUI();
         settingsUI = new SettingsUI();
         calendarUI = new CalendarUI();
+        heldSeatsUI = new heldSeatsUI(); // Initialize the HeldSeatsUI
         dashboardPanel = createDashboardPanel();
 
         // Add dashboard panel to content by default
@@ -260,6 +263,9 @@ public class HomeUI extends JFrame {
             case "Invoices":
                 contentPanel.add(new InvoiceUI(), BorderLayout.CENTER);
                 break;
+            case "Held Seats": // Added case for Held Seats
+                contentPanel.add(heldSeatsUI, BorderLayout.CENTER);
+                break;
         }
 
         // Refresh the content panel
@@ -332,12 +338,19 @@ public class HomeUI extends JFrame {
                 new Color(243, 156, 18),
                 "📣");
 
+        // Add a new card for Held Seats
+        JPanel heldSeatsCard = createModernCard("Held Seats",
+                getHeldSeatsCount(),
+                new Color(22, 160, 133),
+                "🪑");
+
         // Add cards to panel
         cardsPanel.add(friendsCard);
         cardsPanel.add(todaysEventsCard);
         cardsPanel.add(marketingEventsCard);
         cardsPanel.add(tourBookingsCard);
         cardsPanel.add(filmShowsCard);
+        cardsPanel.add(heldSeatsCard); // Add the new card to the dashboard
 
         // Create activity overview panel
         JPanel activityPanel = new JPanel(new BorderLayout());
@@ -374,6 +387,24 @@ public class HomeUI extends JFrame {
         dashboardContent.add(centerPanel, BorderLayout.CENTER);
 
         return dashboardContent;
+    }
+
+    // New method to get the count of held seats
+    private String getHeldSeatsCount() {
+        try (Connection connection = myJDBC.getConnection()) {
+            if (connection != null) {
+                String query = "SELECT COUNT(*) FROM heldSeats";
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        return Integer.toString(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "0";
     }
 
     private JTable createMarketingEventsTable() {
