@@ -7,6 +7,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import com.lancaster.database.myJDBC;
@@ -40,7 +41,8 @@ public class HomeUI extends JFrame {
     // Sidebar categories
     private final String[] CATEGORIES = {"Dashboard", "Bookings", "Content", "Administration"};
     private final Map<String, String[]> CATEGORY_ITEMS = new HashMap<String, String[]>() {{
-        put("Dashboard", new String[]{"Dashboard"});
+        // Remove Dashboard from collapsible menu items
+        put("Dashboard", new String[]{}); // Empty array instead of {"Dashboard"}
         put("Bookings", new String[]{"Tour Bookings", "Meeting Bookings", "Film Shows"});
         put("Content", new String[]{"Friends", "Films", "Marketing Events"});
         put("Administration", new String[]{"Calendar", "Invoices", "Settings"});
@@ -161,9 +163,20 @@ public class HomeUI extends JFrame {
         sidebarPanel.add(brandPanel);
         sidebarPanel.add(Box.createVerticalStrut(10));
 
+        // Add Dashboard button at the top (outside collapsible sections)
+        JButton dashboardButton = createMenuButton("Dashboard");
+        dashboardButton.setBackground(selectedColor);
+        dashboardButton.setForeground(Color.WHITE);
+        navButtons.put("Dashboard", dashboardButton);
+        sidebarPanel.add(dashboardButton);
+        sidebarPanel.add(Box.createVerticalStrut(10));
+
         // Create category sections
         for (String category : CATEGORIES) {
-            createCategoryPanel(category, CATEGORY_ITEMS.get(category));
+            // Skip creating a category panel for Dashboard since we've moved it
+            if (!category.equals("Dashboard")) {
+                createCategoryPanel(category, CATEGORY_ITEMS.get(category));
+            }
         }
 
         // Add bottom padding
@@ -278,12 +291,6 @@ public class HomeUI extends JFrame {
         button.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // If it's Dashboard, select it by default
-        if (text.equals("Dashboard")) {
-            button.setBackground(selectedColor);
-            button.setForeground(Color.WHITE);
-        }
-
         // Add hover effect
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -397,7 +404,7 @@ public class HomeUI extends JFrame {
         headerPanel.add(dateLabel, BorderLayout.CENTER);
 
         // Summary cards panel
-        JPanel cardsPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        JPanel cardsPanel = new JPanel(new GridLayout(2, 3, 20, 20));
         cardsPanel.setOpaque(false);
 
         // Create summary cards with more modern styling
@@ -421,32 +428,103 @@ public class HomeUI extends JFrame {
                 new Color(231, 76, 60),
                 "🎬");
 
+        JPanel marketingEventsCard = createModernCard("Marketing Events",
+                getMarketingEventsCount(),
+                new Color(243, 156, 18),
+                "📣");
+
         // Add cards to panel
         cardsPanel.add(friendsCard);
         cardsPanel.add(todaysEventsCard);
+        cardsPanel.add(marketingEventsCard);
         cardsPanel.add(tourBookingsCard);
         cardsPanel.add(filmShowsCard);
 
-        // Create a chart panel placeholder
-        JPanel chartPanel = new JPanel(new BorderLayout());
-        chartPanel.setBackground(Color.WHITE);
-        chartPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
-        chartPanel.setPreferredSize(new Dimension(200, 300));
+        // Create activity overview panel
+        JPanel activityPanel = new JPanel(new BorderLayout());
+        activityPanel.setBackground(Color.WHITE);
+        activityPanel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
 
-        JLabel chartLabel = new JLabel("Activity Overview", JLabel.CENTER);
-        chartLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        chartPanel.add(chartLabel, BorderLayout.CENTER);
+        JPanel activityHeaderPanel = new JPanel(new BorderLayout());
+        activityHeaderPanel.setOpaque(false);
+
+        JLabel activityTitleLabel = new JLabel("Activity Overview");
+        activityTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        activityTitleLabel.setForeground(new Color(52, 73, 94));
+
+        activityHeaderPanel.add(activityTitleLabel, BorderLayout.WEST);
+
+        // Create table to display marketing events
+        JTable eventsTable = createMarketingEventsTable();
+        JScrollPane scrollPane = new JScrollPane(eventsTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        activityPanel.add(activityHeaderPanel, BorderLayout.NORTH);
+        activityPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Arrange panels in main dashboard
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
         centerPanel.setOpaque(false);
         centerPanel.add(cardsPanel, BorderLayout.NORTH);
-        centerPanel.add(chartPanel, BorderLayout.CENTER);
+        centerPanel.add(activityPanel, BorderLayout.CENTER);
 
         dashboardContent.add(headerPanel, BorderLayout.NORTH);
         dashboardContent.add(centerPanel, BorderLayout.CENTER);
 
         return dashboardContent;
+    }
+
+    private JTable createMarketingEventsTable() {
+        // Column names
+        String[] columnNames = {"Event Name", "Date", "Location", "Attendees", "Status"};
+
+        // Sample data - in a real app, this would come from the database-4
+        Object[][] data = getMarketingEventsData();
+
+        // Create table
+        JTable table = new JTable(data, columnNames);
+        styleTable(table);
+
+        return table;
+    }
+
+    private Object[][] getMarketingEventsData() {
+        // List to store rows temporarily since we don't know final count initially
+        ArrayList<Object> dataList = new ArrayList<>();
+
+        // Query database for marketing events
+        try (Connection connection = myJDBC.getConnection()) {
+            if (connection != null) {
+                String query = "SELECT eventID, type, startDate, endDate, room, duration, name, peopleNum, venue FROM marketing_events ORDER BY startDate DESC LIMIT 5";
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+
+                    // Iterate through result set and add each row to our list
+                    while (rs.next()) {
+                        Object[] row = new Object[5]; // Create array for current row with 5 columns
+                        row[0] = rs.getString("type");
+                        row[1] = rs.getDate("startDate");
+                        row[2] = rs.getString("name");
+                        row[3] = rs.getDate("endDate");
+                        row[4] = rs.getString("venue");
+                        dataList.add(row);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Convert list to 2D array
+        Object[][] data = new Object[dataList.size()][5];
+        for (int i = 0; i < dataList.size(); i++) {
+            data[i] = (Object[]) dataList.get(i);
+        }
+
+        return data;
     }
 
     private JPanel createModernCard(String title, String value, Color color, String icon) {
@@ -530,7 +608,24 @@ public class HomeUI extends JFrame {
         return "0";
     }
 
-    // Table styling method (kept for reference)
+    private String getMarketingEventsCount() {
+        try (Connection connection = myJDBC.getConnection()) {
+            if (connection != null) {
+                String query = "SELECT COUNT(*) FROM marketing_events";
+                try (Statement stmt = connection.createStatement();
+                     ResultSet rs = stmt.executeQuery(query)) {
+                    if (rs.next()) {
+                        return Integer.toString(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "0";
+    }
+
+    // Table styling method
     private void styleTable(JTable table) {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setRowHeight(35);

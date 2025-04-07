@@ -1,6 +1,8 @@
 package com.lancaster.gui;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -23,39 +25,75 @@ public class FilmShowsUI extends JPanel {
     private JTable showsTable;
     private DefaultTableModel tableModel;
     private JLabel statusLabel;
-    private JButton filmsButton;
     private JTextField searchField;
     private TableRowSorter<DefaultTableModel> sorter;
 
+    // Colors to match TourBookingsUI
+    private Color primaryColor = new Color(47, 54, 64);
+    private Color accentColor = new Color(86, 101, 115);
+    private Color highlightColor = new Color(52, 152, 219);
+    private Color backgroundColor = new Color(245, 246, 250);
+
     public FilmShowsUI() {
         setLayout(new BorderLayout());
+        setBackground(backgroundColor);
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Create header panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(60, 141, 188));
-        headerPanel.setPreferredSize(new Dimension(800, 50));
+        headerPanel.setBackground(backgroundColor);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
-        JLabel titleLabel = new JLabel("  Film Shows");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setForeground(Color.BLACK);
-        headerPanel.add(titleLabel, BorderLayout.WEST);
+        // Title with icon
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        titlePanel.setOpaque(false);
 
-        // Add status label
-        statusLabel = new JLabel("Loading data...");
-        statusLabel.setForeground(Color.BLACK);
-        headerPanel.add(statusLabel, BorderLayout.EAST);
+        JLabel iconLabel = new JLabel("🎬");
+        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 24));
 
-        // Create search panel
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchPanel.setBackground(new Color(240, 240, 240));
-        searchField = new JTextField(20);
+        JLabel titleLabel = new JLabel("Film Shows");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(52, 73, 94));
+
+        titlePanel.add(iconLabel);
+        titlePanel.add(titleLabel);
+        headerPanel.add(titlePanel, BorderLayout.WEST);
+
+        // Create actions panel with search and status
+        JPanel actionsPanel = new JPanel(new BorderLayout(10, 0));
+        actionsPanel.setOpaque(false);
+
+        // Search field
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setOpaque(false);
+        searchField = new JTextField(15);
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(200, 200, 200), 1, true),
+                new EmptyBorder(5, 10, 5, 10)
+        ));
         searchField.setToolTipText("Search for shows by title, date, or room");
-        JLabel searchLabel = new JLabel("Search: ");
-        searchPanel.add(searchLabel);
+
+        JButton searchButton = new JButton("Search");
+        styleButton(searchButton, highlightColor);
+        searchButton.setForeground(Color.BLACK); // Make text black
+        searchButton.addActionListener(e -> searchFilter());
+
+        searchPanel.add(new JLabel("Search: "));
         searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+
+        // Status label
+        statusLabel = new JLabel("Loading data...");
+        statusLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        statusLabel.setForeground(accentColor);
+
+        actionsPanel.add(searchPanel, BorderLayout.CENTER);
+        actionsPanel.add(statusLabel, BorderLayout.EAST);
+
+        headerPanel.add(actionsPanel, BorderLayout.EAST);
 
         // Create table model
-        String[] columns = {"Show ID", "Film ID", "Film Title", "Show Date", "End Date", "Duration", "Ticket Price", "Room"};
+        String[] columns = {"ID", "Film ID", "Film Title", "Show Date", "End Date", "Duration", "Ticket Price", "Room"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -79,67 +117,9 @@ public class FilmShowsUI extends JPanel {
         showsTable = new JTable(tableModel);
         sorter = new TableRowSorter<>(tableModel);
         showsTable.setRowSorter(sorter);
-        showsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        showsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        showsTable.setGridColor(new Color(230, 230, 230));
-        showsTable.setShowGrid(true);
-        showsTable.setRowHeight(30);
-        showsTable.setIntercellSpacing(new Dimension(5, 5));
-        showsTable.setFillsViewportHeight(true);
+        styleTable(showsTable);
 
-        // Customize header appearance
-        JTableHeader header = showsTable.getTableHeader();
-        header.setBackground(new Color(100, 150, 200));
-        header.setForeground(Color.WHITE);
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-
-        // Center align content in cells and customize appearance
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                if (isSelected) {
-                    c.setBackground(new Color(135, 206, 250)); // Light blue selection
-                    c.setForeground(Color.BLACK);
-                } else {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245)); // Zebra striping
-                    c.setForeground(Color.BLACK);
-                }
-
-                // Format currency
-                if (column == 6 && value != null) { // Ticket price column
-                    setText("£" + String.format("%.2f", value));
-                }
-
-                // Format duration
-                if (column == 5 && value != null) { // Duration column
-                    setText(value + " min");
-                }
-
-                setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-                return c;
-            }
-        };
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // Apply renderer to all columns
-        for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            showsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
-        // Set column widths
-        showsTable.getColumnModel().getColumn(0).setPreferredWidth(70); // Show ID
-        showsTable.getColumnModel().getColumn(1).setPreferredWidth(70); // Film ID
-        showsTable.getColumnModel().getColumn(2).setPreferredWidth(200); // Film Title
-
-        // Add scroll pane
-        JScrollPane scrollPane = new JScrollPane(showsTable);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        scrollPane.getViewport().setBackground(Color.WHITE);
-
-        // Setup search functionality
+        // Add search functionality to searchField
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -157,39 +137,154 @@ public class FilmShowsUI extends JPanel {
             }
         });
 
+        // Add scroll pane with styled border
+        JScrollPane scrollPane = new JScrollPane(showsTable);
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1),
+                new EmptyBorder(0, 0, 0, 0)
+        ));
+        scrollPane.setBackground(Color.WHITE);
+
         // Create button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.setBackground(new Color(240, 240, 240));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 15));
+        buttonPanel.setOpaque(false);
 
         JButton refreshButton = new JButton("Refresh");
-        refreshButton.setIcon(UIManager.getIcon("FileView.refreshIcon"));
-        refreshButton.setBackground(new Color(220, 220, 220));
+        styleButton(refreshButton, Color.BLACK);
+        refreshButton.setForeground(Color.BLACK); // Make text black
         refreshButton.addActionListener(e -> loadFilmShowsData());
 
-        JButton newShowButton = new JButton("Create New Show");
-        newShowButton.setBackground(new Color(92, 184, 92));
-        newShowButton.setForeground(Color.BLACK);
+        JButton newShowButton = new JButton("New Show");
+        styleButton(newShowButton, Color.BLACK);
+        newShowButton.setForeground(Color.BLACK); // Make text black
         newShowButton.addActionListener(e -> createNewShow());
 
         JButton deleteShowButton = new JButton("Delete Show");
-        deleteShowButton.setBackground(new Color(217, 83, 79));
-        deleteShowButton.setForeground(Color.BLACK);
+        styleButton(deleteShowButton, Color.BLACK);
+        deleteShowButton.setForeground(Color.BLACK); // Make text black
         deleteShowButton.addActionListener(e -> deleteSelectedShow());
 
         buttonPanel.add(refreshButton);
         buttonPanel.add(newShowButton);
         buttonPanel.add(deleteShowButton);
 
-        // Add components to panel
+        // Create card panel to wrap the table
+        JPanel cardPanel = new JPanel(new BorderLayout());
+        cardPanel.setBackground(Color.WHITE);
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(230, 230, 230), 1),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
+
+        // Add a subtle header to the card
+        JPanel cardHeader = new JPanel(new BorderLayout());
+        cardHeader.setBackground(Color.WHITE);
+        cardHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 230, 230)));
+        cardHeader.setPreferredSize(new Dimension(cardHeader.getWidth(), 40));
+
+        JLabel cardTitle = new JLabel("Current Film Shows");
+        cardTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        cardTitle.setForeground(new Color(52, 73, 94));
+        cardTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
+
+        cardHeader.add(cardTitle, BorderLayout.WEST);
+
+        // Assemble the card
+        cardPanel.add(cardHeader, BorderLayout.NORTH);
+        cardPanel.add(scrollPane, BorderLayout.CENTER);
+
+        // Add components to main panel
         add(headerPanel, BorderLayout.NORTH);
-        add(searchPanel, BorderLayout.PAGE_START);
-        add(scrollPane, BorderLayout.CENTER);
+        add(cardPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Add right-click context menu
         addContextMenu();
 
         loadFilmShowsData();
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setRowHeight(35);
+        table.setIntercellSpacing(new Dimension(10, 5));
+        table.setFillsViewportHeight(true);
+        table.setSelectionBackground(new Color(232, 242, 254));
+        table.setSelectionForeground(Color.BLACK);
+        table.setShowGrid(false);
+        table.setGridColor(new Color(245, 245, 245));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Apply custom cell renderer for formatting
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (isSelected) {
+                    c.setBackground(new Color(232, 242, 254));
+                    c.setForeground(Color.BLACK);
+                } else {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(249, 250, 252));
+                    c.setForeground(Color.BLACK);
+                }
+
+                // Format currency
+                if (column == 6 && value != null) { // Ticket price column
+                    setText("£" + String.format("%.2f", value));
+                }
+
+                // Format duration
+                if (column == 5 && value != null) { // Duration column
+                    setText(value + " min");
+                }
+
+                // Date formatting handled by table cell editor
+
+                setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+                return c;
+            }
+        };
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Apply renderer to all columns
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // Style table header
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(new Color(245, 246, 250));
+        header.setForeground(new Color(52, 73, 94));
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(230, 230, 230)));
+    }
+
+    private void styleButton(JButton button, Color color) {
+        button.setBackground(color);
+        button.setForeground(Color.WHITE); // Default color, will be overridden for specific buttons
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(
+                        Math.max(0, color.getRed() - 20),
+                        Math.max(0, color.getGreen() - 20),
+                        Math.max(0, color.getBlue() - 20)
+                ));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
     }
 
     private void searchFilter() {
@@ -207,7 +302,8 @@ public class FilmShowsUI extends JPanel {
             sorter.setRowFilter(combinedFilter);
 
             int rowCount = showsTable.getRowCount();
-            statusLabel.setText("Found " + rowCount + " matching records");
+            statusLabel.setText(rowCount + " results found");
+            statusLabel.setForeground(new Color(46, 204, 113));
         }
     }
 
@@ -245,21 +341,44 @@ public class FilmShowsUI extends JPanel {
             double price = (Double) tableModel.getValueAt(modelRow, 6);
             String room = (String) tableModel.getValueAt(modelRow, 7);
 
+            // Create styled details panel
+            JPanel detailsPanel = new JPanel();
+            detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+            detailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
             // Format the details
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            String details = "Show ID: " + showId + "\n" +
-                    "Film: " + filmTitle + "\n" +
-                    "Show Date: " + dateFormat.format(showDate) + "\n" +
-                    "End Date: " + dateFormat.format(endDate) + "\n" +
-                    "Duration: " + duration + " minutes\n" +
-                    "Ticket Price: £" + String.format("%.2f", price) + "\n" +
-                    "Room: " + room;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+            addDetailRow(detailsPanel, "Show ID:", String.valueOf(showId));
+            addDetailRow(detailsPanel, "Film:", filmTitle);
+            addDetailRow(detailsPanel, "Show Date:", showDate != null ? dateFormat.format(showDate) : "N/A");
+            addDetailRow(detailsPanel, "End Date:", endDate != null ? dateFormat.format(endDate) : "N/A");
+            addDetailRow(detailsPanel, "Duration:", duration + " minutes");
+            addDetailRow(detailsPanel, "Ticket Price:", "£" + String.format("%.2f", price));
+            addDetailRow(detailsPanel, "Room:", room);
 
             // Show details in a dialog
-            JOptionPane.showMessageDialog(this, details, "Show Details", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, detailsPanel, "Show Details", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "Please select a show first", "No Selection", JOptionPane.WARNING_MESSAGE);
         }
+    }
+
+    private void addDetailRow(JPanel panel, String label, String value) {
+        JPanel row = new JPanel(new BorderLayout(10, 0));
+        row.setOpaque(false);
+
+        JLabel labelComponent = new JLabel(label);
+        labelComponent.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        labelComponent.setPreferredSize(new Dimension(100, 25));
+
+        JLabel valueComponent = new JLabel(value);
+        valueComponent.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        row.add(labelComponent, BorderLayout.WEST);
+        row.add(valueComponent, BorderLayout.CENTER);
+        panel.add(row);
+        panel.add(Box.createVerticalStrut(5));
     }
 
     private void editSelectedShow() {
@@ -279,9 +398,6 @@ public class FilmShowsUI extends JPanel {
             String room = (String) tableModel.getValueAt(modelRow, 7);
 
             // Create edit dialog similar to createNewShow but prepopulated
-            // ... (dialog creation code would go here)
-            // This would be similar to your createNewShow method but prefilling the fields
-
             JOptionPane.showMessageDialog(this, "Edit functionality would go here", "Not Implemented", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "Please select a show first", "No Selection", JOptionPane.WARNING_MESSAGE);
@@ -296,8 +412,19 @@ public class FilmShowsUI extends JPanel {
             int showId = (Integer) tableModel.getValueAt(modelRow, 0);
             String filmTitle = (String) tableModel.getValueAt(modelRow, 2);
 
+            // Create a styled confirmation dialog
+            JPanel confirmPanel = new JPanel(new BorderLayout(10, 10));
+            confirmPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JLabel iconLabel = new JLabel(UIManager.getIcon("OptionPane.warningIcon"));
+            JLabel messageLabel = new JLabel("<html>Are you sure you want to delete show #" + showId + "?<br><b>" + filmTitle + "</b></html>");
+            messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+            confirmPanel.add(iconLabel, BorderLayout.WEST);
+            confirmPanel.add(messageLabel, BorderLayout.CENTER);
+
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Are you sure you want to delete show #" + showId + " (" + filmTitle + ")?",
+                    confirmPanel,
                     "Confirm Deletion",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
@@ -307,6 +434,7 @@ public class FilmShowsUI extends JPanel {
                     deleteShow(showId);
                     loadFilmShowsData();
                     statusLabel.setText("Show #" + showId + " deleted successfully");
+                    statusLabel.setForeground(new Color(46, 204, 113));
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(this, "Error deleting show: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -327,129 +455,168 @@ public class FilmShowsUI extends JPanel {
     }
 
     private void loadFilmShowsData() {
-        try (Connection connection = myJDBC.getConnection()) {
-            if (connection != null) {
-                String dataQuery = "SELECT showId, filmId, filmTitle, showDate, endDate, duration, ticketPrice, room, venue, description FROM film_bookings";
-                Statement dataStmt = connection.createStatement();
-                ResultSet dataRs = dataStmt.executeQuery(dataQuery);
+        statusLabel.setText("Loading data...");
+        statusLabel.setForeground(accentColor);
 
-                tableModel.setRowCount(0); // Clear existing data
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                try (Connection connection = myJDBC.getConnection()) {
+                    if (connection != null) {
+                        String dataQuery = "SELECT showId, filmId, filmTitle, showDate, endDate, duration, ticketPrice, room, venue, description FROM film_bookings";
+                        Statement dataStmt = connection.createStatement();
+                        ResultSet dataRs = dataStmt.executeQuery(dataQuery);
 
-                while (dataRs.next()) {
-                    // Handle zero date values and convert them to null
-                    Date showDate = dataRs.getDate("showDate");
-                    if (showDate != null && showDate.toString().equals("0000-00-00")) {
-                        showDate = null;
+                        tableModel.setRowCount(0); // Clear existing data
+
+                        while (dataRs.next()) {
+                            // Handle zero date values and convert them to null
+                            Date showDate = dataRs.getDate("showDate");
+                            if (showDate != null && showDate.toString().equals("0000-00-00")) {
+                                showDate = null;
+                            }
+
+                            Date endDate = dataRs.getDate("endDate");
+                            if (endDate != null && endDate.toString().equals("0000-00-00")) {
+                                endDate = null;
+                            }
+
+                            Object[] row = {
+                                    dataRs.getInt("showId"),
+                                    dataRs.getInt("filmId"),
+                                    dataRs.getString("filmTitle"),
+                                    showDate,
+                                    endDate,
+                                    dataRs.getInt("duration"),
+                                    dataRs.getDouble("ticketPrice"),
+                                    dataRs.getString("room")
+                            };
+                            tableModel.addRow(row);
+                        }
                     }
-
-                    Date endDate = dataRs.getDate("endDate");
-                    if (endDate != null && endDate.toString().equals("0000-00-00")) {
-                        endDate = null;
-                    }
-
-                    Object[] row = {
-                            dataRs.getInt("showId"),
-                            dataRs.getInt("filmId"),
-                            dataRs.getString("filmTitle"),
-                            showDate,
-                            endDate,
-                            dataRs.getInt("duration"),
-                            dataRs.getDouble("ticketPrice"),
-                            dataRs.getString("room"),
-                            dataRs.getString("venue"),
-                            dataRs.getString("description")
-                    };
-                    tableModel.addRow(row);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeLater(() -> {
+                        statusLabel.setText("Error: " + e.getMessage());
+                        statusLabel.setForeground(new Color(231, 76, 60));
+                    });
                 }
-
-                statusLabel.setText("Data loaded successfully. Total shows: " + tableModel.getRowCount());
-                statusLabel.setForeground(Color.BLACK);
+                return null;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            statusLabel.setText("Error loading data: " + e.getMessage());
-            statusLabel.setForeground(new Color(255, 100, 100));
-        }
+
+            @Override
+            protected void done() {
+                statusLabel.setText(tableModel.getRowCount() + " shows loaded");
+                statusLabel.setForeground(new Color(46, 204, 113));
+            }
+        };
+
+        worker.execute();
     }
+
     private void createNewShow() {
-        // Create dialog for new show input
+        // Create dialog for new show input with improved styling
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "New Film Show", true);
         dialog.setLayout(new BorderLayout());
 
+        // Add dialog header
+        JPanel dialogHeader = new JPanel(new BorderLayout());
+        dialogHeader.setBackground(highlightColor);
+        dialogHeader.setPreferredSize(new Dimension(dialogHeader.getWidth(), 60));
+        dialogHeader.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        JLabel dialogTitle = new JLabel("Create New Film Show");
+        dialogTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        dialogTitle.setForeground(Color.WHITE);
+        dialogHeader.add(dialogTitle, BorderLayout.WEST);
+
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        formPanel.setBackground(Color.WHITE);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(8, 5, 8, 5);
+        gbc.weightx = 1.0;
 
+        // Create form fields with improved styling
         // Film ID field
-        gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Film ID:"), gbc);
-        JTextField filmIdField = new JTextField(20);
+        addFormField(formPanel, "Film ID:", gbc, 0);
+        JTextField filmIdField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 0;
         formPanel.add(filmIdField, gbc);
 
         // Film Title field
-        gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Film Title:"), gbc);
-        JTextField filmTitleField = new JTextField(20);
+        addFormField(formPanel, "Film Title:", gbc, 1);
+        JTextField filmTitleField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 1;
         formPanel.add(filmTitleField, gbc);
 
         // Start Date field
-        gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Start Date (YYYY-MM-DD HH:MM:SS):"), gbc);
-        JTextField startDateField = new JTextField(20);
+        addFormField(formPanel, "Start Date (YYYY-MM-DD HH:MM:SS):", gbc, 2);
+        JTextField startDateField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 2;
         formPanel.add(startDateField, gbc);
 
         // End Date field
-        gbc.gridx = 0; gbc.gridy = 3;
-        formPanel.add(new JLabel("End Date (YYYY-MM-DD HH:MM:SS):"), gbc);
-        JTextField endDateField = new JTextField(20);
+        addFormField(formPanel, "End Date (YYYY-MM-DD HH:MM:SS):", gbc, 3);
+        JTextField endDateField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 3;
         formPanel.add(endDateField, gbc);
 
         // Duration field
-        gbc.gridx = 0; gbc.gridy = 4;
-        formPanel.add(new JLabel("Duration (min):"), gbc);
-        JTextField durationField = new JTextField(20);
+        addFormField(formPanel, "Duration (min):", gbc, 4);
+        JTextField durationField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 4;
         formPanel.add(durationField, gbc);
 
         // Ticket Price field
-        gbc.gridx = 0; gbc.gridy = 5;
-        formPanel.add(new JLabel("Ticket Price (£):"), gbc);
-        JTextField ticketPriceField = new JTextField(20);
+        addFormField(formPanel, "Ticket Price (£):", gbc, 5);
+        JTextField ticketPriceField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 5;
         formPanel.add(ticketPriceField, gbc);
 
         // Room field
-        gbc.gridx = 0; gbc.gridy = 6;
-        formPanel.add(new JLabel("Room:"), gbc);
-        JTextField roomField = new JTextField(20);
+        addFormField(formPanel, "Room:", gbc, 6);
+        JTextField roomField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 6;
         formPanel.add(roomField, gbc);
 
         // Venue field
-        gbc.gridx = 0; gbc.gridy = 7;
-        formPanel.add(new JLabel("Venue:"), gbc);
-        JTextField venueField = new JTextField(20);
+        addFormField(formPanel, "Venue:", gbc, 7);
+        JTextField venueField = createStyledTextField();
         gbc.gridx = 1; gbc.gridy = 7;
         formPanel.add(venueField, gbc);
 
         // Description field
-        gbc.gridx = 0; gbc.gridy = 8;
-        formPanel.add(new JLabel("Description:"), gbc);
+        addFormField(formPanel, "Description:", gbc, 8);
         JTextArea descriptionArea = new JTextArea(3, 20);
+        descriptionArea.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(200, 200, 200), 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+        descriptionArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+
+        JScrollPane descScrollPane = new JScrollPane(descriptionArea);
+        descScrollPane.setBorder(BorderFactory.createEmptyBorder());
         gbc.gridx = 1; gbc.gridy = 8;
-        formPanel.add(new JScrollPane(descriptionArea), gbc);
+        formPanel.add(descScrollPane, gbc);
 
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Save");
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(230, 230, 230)),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+
         JButton cancelButton = new JButton("Cancel");
+        styleButton(cancelButton, new Color(190, 190, 190));
+
+        JButton saveButton = new JButton("Save Show");
+        styleButton(saveButton, highlightColor);
 
         saveButton.addActionListener(e -> {
             try {
@@ -478,7 +645,10 @@ public class FilmShowsUI extends JPanel {
                 // Validate timestamp format
                 if (!startDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}") ||
                         !endDateStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
-                    JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog,
+                            "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS",
+                            "Validation Error",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -489,26 +659,63 @@ public class FilmShowsUI extends JPanel {
                 // Insert new show into the database
                 insertNewShow(filmId, filmTitle, startTimestamp, endTimestamp, duration, ticketPrice, room, venue, description);
                 loadFilmShowsData(); // Refresh the table data
-                JOptionPane.showMessageDialog(dialog, "New show added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                dialog.dispose(); // Close the dialog after successful insertion
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(dialog, "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS", "Validation Error", JOptionPane.ERROR_MESSAGE);
 
+                // Show success message with improved styling
+                JOptionPane.showMessageDialog(dialog,
+                        "New film show has been added successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                dialog.dispose(); // Close the dialog after successful insertion
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter valid numbers for Film ID, Duration, and Ticket Price",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter valid dates and times in the format YYYY-MM-DD HH:MM:SS",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Error adding new show: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog,
+                        "Error adding new show: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
         cancelButton.addActionListener(e -> dialog.dispose());
 
-        buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
+        buttonPanel.add(Box.createHorizontalStrut(10));
+        buttonPanel.add(saveButton);
 
+        dialog.add(dialogHeader, BorderLayout.NORTH);
         dialog.add(formPanel, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
         dialog.pack();
+        dialog.setMinimumSize(new Dimension(500, dialog.getHeight()));
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+    }
+
+    private void addFormField(JPanel panel, String labelText, GridBagConstraints gbc, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(label, gbc);
+    }
+
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField(20);
+        field.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(200, 200, 200), 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        return field;
     }
 
     private void insertNewShow(int filmId, String filmTitle, java.sql.Timestamp startTimestamp, java.sql.Timestamp endTimestamp, int duration, double ticketPrice, String room, String venue, String description) throws Exception {
@@ -527,19 +734,5 @@ public class FilmShowsUI extends JPanel {
             pstmt.setString(9, description);
             pstmt.executeUpdate();
         }
-    }
-
-    private void navigateToHomeUI() {
-        // Switch to HomeUI
-        HomeUI homeUI = new HomeUI("Guest");
-        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-
-        // Clear the current content
-        parentFrame.getContentPane().removeAll();
-
-        // Set the new content
-        parentFrame.setContentPane(homeUI);
-        parentFrame.revalidate();
-        parentFrame.repaint();
     }
 }
